@@ -1,0 +1,199 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>
+        时代中国
+    </title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+    @*<link rel="shortcut icon" href="../../Images/favicon.ico" type="image/x-icon" />*@
+    <link rel="stylesheet" href="../../Skins/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../../Css/font-awesome.min.css" />
+    <link rel="stylesheet" href="../../Css/ionicons.min.css" />
+    <link rel="stylesheet" href="../../Skins/dist/css/AdminLTE.min.css" />
+    <link rel="stylesheet" href="../../Skins/dist/css/skins/skin-blue.min.css" />
+    <link rel="stylesheet" href="../../Skins/plugins/iCheck/flat/blue.css" />
+    <link rel="stylesheet" href="../../Css/main.css" />
+    <link href="~/Contents/WebPageCss/layout.css" rel="stylesheet" />
+    <!--[if lt IE 9]>
+        <script src="../../JS/html5shiv.min.js"></script>
+        <script src="../../JS/respond.min.js"></script>
+    <![endif]-->
+    <script src="../../JS/My97DatePicker/WdatePicker.js"></script>
+    <script src="../../JS/mojocube.js"></script>
+    <script src="../../Skins/plugins/jQuery/jQuery-2.1.4.min.js"></script>
+    @*js数据筛选器*@
+    <script src="~/Contents/underscore.js"></script>
+    <!--自定义扩展-->
+    <script src="~/Contents/ExtentScript.js"></script>
+    <!--ligerui-->
+    <link href="~/Contents/LigerUI/lib/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" />
+    <script src="~/Contents/LigerUI/lib/ligerUI/js/ligerui.all.js"></script>
+    <script>    
+       
+    </script>
+    @RenderSection("PageScript", false)
+    @RenderSection("PageStyle", false)
+
+</head>
+
+<body class="hold-transition skin-blue  sidebar-collapse">
+    <header class="main-header ">
+        <a id="ctl00_hlLogo" class="logo">
+            <span class="logo-mini">
+                <img src="http://oa.mojocube.com/images/logo_1.png" />
+            </span><span class="logo-lg">时代中国</span>
+        </a>
+        <nav class="navbar navbar-static-top" role="navigation">
+            <ul class="nav navbar-nav navbar-left">
+                <li><a href="/Process/ProceduralModel">流程管理</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">系统管理<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/SystemManager/SystemUserView">人员管理</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="/SystemManager/SystemRoleView">角色管理</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="/SystemManager/AuthorityConfig">权限配置</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">集成功能<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/Integration/DataDictionaryPage">数据字典</a></li>
+                        <li role="separator" class="divider"></li>
+                    </ul>
+                </li>
+            </ul>
+            <!-- Navbar Right Menu -->
+            <div class="navbar-custom-menu">
+                <ul class="nav navbar-nav">
+                    <!-- 用户面板 -->
+                    <li class="dropdown user user-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <img id="ctl00_imgPortrait1" class="user-image" src="../../images/userHeader.jpg" style="border-width: 0px;" />
+
+                               <span class="hidden-xs"><span >@CommonTool.CookieHelper.GetCookie("systemUserName", "")</span></span>
+                            
+
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="user-header">
+                                <img id="ctl00_imgPortrait3" class="img-circle" src="../../images/userHeader.jpg" style="border-width: 0px;" />
+                                <p>
+                                    @*<span id="ctl00_lblPosition">CEO</span> /
+                                        <span id="ctl00_lblDepartment">总公司</span>*@
+                                    <small><span>@CommonTool.CookieHelper.GetCookie("systemUserName","")</span></small>
+                                </p>
+                            </li>
+                            <li class="user-footer">
+                                <div class="pull-left">
+                                    @*<a href="../User/Profile.aspx" class="btn btn-default btn-flat">用户面板</a>*@
+                                </div>
+                                <div class="pull-right">
+                                    <a href="/Login/Logout" class="btn btn-default btn-flat" style="background: #D73925; color: #fff; border: solid 1px #D73925">退出登录</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="#" data-toggle="control-sidebar"><i class="fa fa-history"></i></a>
+                    </li>
+
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+
+
+
+    <!-- 内容 -->
+    <div>
+
+
+        @RenderBody()
+
+    </div>
+    <!--选择角色人员-->
+    <div id="choice-system-user" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">选择人员</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="搜索名称">
+                                <span class="input-group-btn">
+                                    <a class="btn btn-default">Go</a>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <table class="table table-hover" border="0" style="border-width: 0px; border-collapse: collapse;">
+                            <tr>
+                                <th scope="col">选择</th>
+                                <th scope="col">姓名</th>
+                                <th scope="col">账号</th>
+                            </tr>
+                            <tbody id="choice-system-user-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-primary" id="choice-system-user-submit-btn">确定</a>
+                    <a class="btn btn-default" data-dismiss="modal">取消</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--选择角色人员-->
+    @*<footer class="main-footer">
+            <div id="ctl00_Welcome" class="pull-right hidden-xs">2018年02月24日, 星期六</div>
+            <strong>Copyright &copy; <span id="ctl00_lblYear">2018</span> <a id="ctl00_hlCopyright" href="#" target="_blank">时代中国</a>.</strong> All rights reserved.
+
+        </footer>*@
+
+    @*<div class="control-sidebar-bg"></div>*@
+    <div class="loading-div">
+    </div>
+    <div class="loading-img-div">
+        <img src="~/Contents/Img/LoadingImg/bigloading.gif" />
+        <span>加载中...</span>
+    </div>
+    <script src="../../Skins/plugins/jQueryUI/jquery-ui.min.js"></script>
+    <script src="../../Skins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../../Skins/dist/js/app.min.js"></script>
+
+    <script src="../../Skins/plugins/iCheck/icheck.min.js"></script>
+    <script>
+        $(function () {
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_flat-blue',
+                radioClass: 'iradio_flat-blue',
+                increaseArea: '20%'
+            });
+        });
+    </script>
+
+    <script type="text/javascript" src="../../JS/Fancybox/jquery.fancybox.js?v=2.1.5"></script>
+    <link rel="stylesheet" type="text/css" href="../../JS/Fancybox/jquery.fancybox.css?v=2.1.5" media="screen" />
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".fancybox").fancybox({
+                parent: "form:first"
+            });
+        });
+    </script>
+
+    <script src="../../Skins/dist/js/pages/dashboard.js"></script>
+
+</body>
+</html>

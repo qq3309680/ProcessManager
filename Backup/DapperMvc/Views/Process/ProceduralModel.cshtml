@@ -1,0 +1,380 @@
+﻿@{
+    ViewBag.Title = "流程模型";
+    Layout = "~/Views/Layout/NoMenuLayout.cshtml";
+}
+@model Domain.Sys_Menu
+
+@section PageScript{
+    <script>
+        $(function ()
+        {
+
+            var data = JSON.parse($("#treeData").val());
+
+            $("#layout1").ligerLayout({ leftWidth: 240 });
+
+            //tab切换页签
+            var navtab = $("#navtab1").ligerGetTabManager();
+            var processTree = $("#ProcessTree").ligerTree({
+                data: data,
+                idFieldName: 'id',
+                parentIDFieldName: 'pid',
+                isExpand: 2,
+                checkbox: false,
+                nodeWidth: 240,
+                onClick: function (node, e)
+                {
+                    //console.dir(node);
+                    //添加标签页面
+                    var tabid = node.data.id;
+                    var title;
+                    var url
+                    if (node.data.ispicture)
+                    {
+                        title = node.data.text + "-流程图";
+                        url = "/Process/ProcessDesigner?ObjectId=" + node.data.pid;
+                        if (navtab.isTabItemExist(tabid))
+                        {
+                            navtab.selectTabItem(tabid);
+                        } else
+                        {
+                            navtab.addTabItem({ url: url, tabid: tabid });
+                            navtab.setHeight("100%");
+                            navtab.setTabItemTitle(tabid, title);
+                        }
+                    }
+                    else if (node.data.isprocess)
+                    {
+                        title = node.data.text + "-流程包数据";
+                        url = "/Process/WorkflowPackage";
+                        if (navtab.isTabItemExist(tabid))
+                        {
+                            navtab.selectTabItem(tabid);
+                        } else
+                        {
+                            navtab.addTabItem({ url: url, tabid: tabid });
+                            navtab.setHeight("100%");
+                            navtab.setTabItemTitle(tabid, title);
+                        }
+                    } else if (node.data.isdatamodel)
+                    {
+                        //console.dir(node.data);
+                        title = node.data.text + "-数据模型";
+                        url = "/Process/BizObjectSchema?ParentProperty=" + node.data.pid + "&WorkFlowCode=" + node.data.workflowcode;
+                        if (navtab.isTabItemExist(tabid))
+                        {
+                            navtab.selectTabItem(tabid);
+                        } else
+                        {
+                            navtab.addTabItem({ url: url, tabid: tabid });
+                            navtab.setHeight("100%");
+                            navtab.setTabItemTitle(tabid, title);
+                        }
+                    }
+
+                },
+                onMouseOver: function (node, e)
+                {
+                    //鼠标移动上去的效果
+                    var offset = $(node.targetItem).offset();
+                    //console.dir(node);
+                    var childrenDiv = $(node.targetItem).children();
+                    var divWidth = 0;
+                    $.each(childrenDiv, function (key, sonDiv)
+                    {
+                        divWidth += $(sonDiv).width();
+                    });
+                    //流程类别
+                    if (node.data.isprocesstype)
+                    {
+                        $("#treeToolbar").attr("data-isprocesstype", node.data.isprocesstype);
+                        $("#treeToolbar").attr("data-workflowcode", node.data.workflowcode);
+                        $("#ImportProcess").show();
+                        $("#AddProcessTable").hide();
+                        $("#DeleteProcess").hide();
+                        $("#OutProcess").hide();
+                        $("#AddProcessModel").show();
+                    }
+                    //流程
+                    if (node.data.isprocess)
+                    {
+                        $("#treeToolbar").attr("data-isprocess", node.data.isprocess);
+                        $("#treeToolbar").attr("data-workflowcode", node.data.workflowcode);
+                        $("#ImportProcess").hide();
+                        $("#AddProcessTable").show();
+                        $("#DeleteProcess").show();
+                        $("#OutProcess").show();
+                        $("#AddProcessModel").hide();
+                    }
+                    //流程模型
+                    if (node.data.isdatamodel)
+                    {
+                        $("#ImportProcess").hide();
+                        $("#AddProcessTable").hide();
+                        $("#DeleteProcess").hide();
+                        $("#OutProcess").hide();
+                        $("#AddProcessModel").hide();
+                    }
+                    //流程图
+                    if (node.data.ispicture)
+                    {
+                        $("#ImportProcess").hide();
+                        $("#AddProcessTable").hide();
+                        $("#DeleteProcess").hide();
+                        $("#OutProcess").hide();
+                        $("#AddProcessModel").hide();
+                    }
+                    $("#treeToolbar").attr("data-objectid", node.data.id);
+                    $("#treeToolbar").css("left", offset.left + divWidth + "px");
+                    $("#treeToolbar").css("top", offset.top + "px");
+                    $("#treeToolbar").show();
+                },
+                onMouseOut: function (node, e)
+                {
+                    //鼠标移出去的效果
+                    $("#treeToolbar").hide();
+
+                }
+            }
+               );
+            $(document).on("mouseover", "#treeToolbar", function ()
+            {
+                $("#treeToolbar").show();
+            });
+            $(document).on("mouseover", ".l-panel-btn", function ()
+            {
+                $(this).addClass("l-panel-btn-over");
+            });
+            $(document).on("mouseout", ".l-panel-btn", function ()
+            {
+                $(this).removeClass("l-panel-btn-over");
+            });
+
+            //添加分类
+            $(document).on("click", "#addProcessType", function ()
+            {
+
+                $('#myModal').modal('show');
+            });
+            //提交分类名称
+            $(document).on("click", "#submitPro_Type", function ()
+            {
+                var model = new Object();
+                model.ObjecrId = "";
+                model.ProcessType = $("#ProcessType").val();
+                $.AJAXGetData("Post", "/Process/EditProc_Type", model, function (data)
+                {
+                    console.dir(data);
+                    if (data.States)
+                    {
+                        //数据编辑成功
+                       
+                        alert("成功");
+                        $('#myModal').modal('hide');
+                        window.location.href = "/Process/ProceduralModel";
+                    }
+                });
+            });
+
+            //添加流程
+            $(document).on("click", "#AddProcessModel", function ()
+            {
+                //console.dir($("#treeToolbar").attr("data-objectid"));
+                $("#submitAddProcess").attr("data-ProcessParentId", $("#treeToolbar").attr("data-objectid"));
+                $('#addProcessModal').modal('show');
+            });
+            $(document).on("click", "#submitAddProcess", function ()
+            {
+                //console.dir($(this).attr("data-ProcessParentId"));
+                var model = new Object();
+                model.Action = 1;
+                model.ObjectID = $.GetGUID();
+                model.ProcessName = $("#ProcessName").val();
+                model.ProcessCode = $("#ProcessCode").val();
+                model.ProcessParentId = $(this).attr("data-ProcessParentId");
+                $.AJAXGetData("Post", "/Process/EditWorkflowTemplate", model, function (data)
+                {
+                    console.dir(data);
+                    if (data.States)
+                    {
+                        addTreeItem(processTree, model);
+                        $('#addProcessModal').modal('hide');
+                        window.location.href = "/Process/ProceduralModel";
+                    }
+                });
+
+            });
+
+            //删除流程
+            $(document).on("click", "#DeleteProcess", function ()
+            {
+                var model = new Object();
+                model.WorkflowCode = $("#treeToolbar").attr("data-workflowcode");
+                var flag = confirm("确定要删除该流程");
+                if (flag)
+                {
+                    $.AJAXGetData("Post", "/Process/DeleteProcess", model, function (data)
+                    {
+                        console.dir(data);
+                        if (data.States)
+                        {
+                            //数据编辑成功
+
+                            alert("成功");
+                            window.location.reload();
+                        } else
+                        {
+                            window.location.reload();
+                        }
+                    });
+                }
+
+            });
+
+            //增加节点
+            function addTreeItem(tree, Process)
+            {
+                //console.dir(Process);
+                //var node = tree.selectNode(Process.ProcessParentId);
+                //console.dir(tree);
+                //console.dir(_.find(tree.data, function (data) { return data.id == Process.ProcessParentId }));
+                //console.dir($("#" + Process.ProcessParentId));
+                var node = new Object();
+                node.data = _.find(tree.data, function (data) { return data.id == Process.ProcessParentId });
+                node.target = $("#" + Process.ProcessParentId)[0];
+                //console.dir(node);
+                //console.dir(tree.getSelected());
+                var nodes = [];
+                nodes.push({ text: Process.ProcessName, id: Process.ObjectID, pid: Process.ProcessParentId, isprocess: true });
+                if (node)
+                    tree.append(node.target, nodes);
+                else
+                    tree.append(null, nodes);
+            }
+
+
+
+        });
+
+    </script>
+    <style>
+        .processtreeiconcolor {
+            color: #3c8dbc;
+        }
+    </style>
+}
+
+<input type="hidden" name="treeData" id="treeData" value="@(ViewData["treeData"])" />
+<!--l-panel-btn-over-->
+<div id="treeToolbar" style="display: none; position: absolute; background: rgb(224, 224, 242); z-index: 100;">
+    <div class="l-toolbar-item l-panel-btn l-toolbar-item-hasicon" style="width: 22px; padding: 0px;" title="新增流程" id="AddProcessModel">
+        <div class="l-panel-btn-l"></div>
+        <div class="l-panel-btn-r"></div>
+        <div class="glyphicon glyphicon-plus" style="left: 0px; line-height: 20px"></div>
+    </div>
+    <div class="l-toolbar-item l-panel-btn l-toolbar-item-hasicon " style="width: 22px; padding: 0px;" title="添加表单" id="AddProcessTable">
+        <div class="l-panel-btn-l"></div>
+        <div class="l-panel-btn-r"></div>
+        <div class="glyphicon glyphicon-list-alt" style="left: 0px; line-height: 20px"></div>
+    </div>
+    <div class="l-toolbar-item l-panel-btn l-toolbar-item-hasicon" style="width: 22px; padding: 0px;" title="导出流程" id="OutProcess">
+        <div class="l-panel-btn-l"></div>
+        <div class="l-panel-btn-r"></div>
+        <div class=" glyphicon glyphicon-open" style="left: 0px; line-height: 20px"></div>
+    </div>
+    <div class="l-toolbar-item l-panel-btn l-toolbar-item-hasicon" style="width: 22px; padding: 0px;" title="导入流程" id="ImportProcess">
+        <div class="l-panel-btn-l"></div>
+        <div class="l-panel-btn-r"></div>
+        <div class=" glyphicon glyphicon-save" style="left: 0px; line-height: 20px"></div>
+    </div>
+    <div class="l-toolbar-item l-panel-btn l-toolbar-item-hasicon" style="width: 22px; padding: 0px;" title="删除流程" id="DeleteProcess">
+        <div class="l-panel-btn-l"></div>
+        <div class="l-panel-btn-r"></div>
+        <div class="glyphicon glyphicon-minus" style="left: 0px; line-height: 20px"></div>
+    </div>
+</div>
+<div class="content-wrapper">
+
+    <section class="content">
+
+
+        <div id="layout1">
+            <div position="left">
+                <div class="box-header with-border">
+                    <h3 class="box-title">流程模型</h3>
+                    <div class="box-tools">
+                        <i id="addProcessType" title="添加分类" class="btn btn-box-tool glyphicon glyphicon-th-list"></i>
+
+                    </div>
+                </div>
+                <div id="ctl00_cphMain_Nav_TypeDiv" class="box-body no-padding">
+                    <div style="width: 100%; float: left; border: 1px solid #ccc; ">
+                        <ul id="ProcessTree">
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+            <div position="center">
+                <div id="navtab1" style="overflow: hidden;" class="liger-tab">
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+</div>
+<!--添加流程分类弹出框-->
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">分类名称</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="ProcessType">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-default" data-dismiss="modal">取消</a>
+                <a class="btn btn-primary" id="submitPro_Type">确定</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!--添加流程弹出框-->
+<div id="addProcessModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">流程名称</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="ProcessCode" class="control-label">流程编码</label>
+                    <input type="text" class="form-control" id="ProcessCode">
+                </div>
+                <div class="form-group">
+                    <label for="ProcessName" class="control-label">流程名称</label>
+                    <input type="text" class="form-control" id="ProcessName">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-default" data-dismiss="modal">取消</a>
+                <a class="btn btn-primary" id="submitAddProcess">确定</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+

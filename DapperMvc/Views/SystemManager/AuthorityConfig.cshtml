@@ -1,0 +1,583 @@
+﻿@{
+    ViewBag.Title = "权限配置";
+    Layout = "~/Views/Layout/NoMenuLayout.cshtml";
+}
+@model List<Domain.Authority>
+    @section PageScript{
+        <script src="~/Contents/underscore.js"></script>
+        <script>
+            $(function () {
+
+                //跳页
+                $(document).on("click", "#pageSkip", function () {
+                    window.location.href = "/SystemManager/AuthorityConfig?pageIndex=" + $("#pageIndex").val();
+                });
+
+                //增加权限
+                $(document).on("click", "#add-auth", function () {
+                    $("#ObjectId").val("");
+                    $("#RoleObjectIds").val("");
+                    $("#RoleNames").val("");
+                    $("#AuthorityType").val("");
+                    $("#SystemName").val("");
+                    $("#PageUrl").val("");
+                    $("#PageName").val("");
+                    $("#ButtonName").val("");
+                    $('#myModal').modal('show');
+
+                });
+
+
+                //勾选角色
+                $(document).on("click", ".checkRole", function () {
+
+                    var isChecked = $(this).is(':checked');
+
+                    if (isChecked) {
+
+                        var roleObjectId = $(this).val();
+
+                        var roleName = $(this).parent().parent().find(".RoleName").html();
+
+                        var hasRole = false;
+
+                        $("#selected-role-list").find("span").each(function (key, val) {
+                            if ($(val).html() == roleName) {
+                                hasRole = true;
+                            }
+                        });
+
+                        if (!hasRole) {
+                            $("#selected-role-list").append("<li style='display: inline-block;width: 100%;'><a class='label'><span ObjectId='" + roleObjectId + "'>" + roleName + "</span><i class='layui-icon close'>x</i></a></li>");
+                        }
+                    }
+
+                });
+
+                //删除角色
+                $(document).on("click", ".close", function () {
+
+                    $(this).parent().parent().remove();
+
+                });
+
+                //添加角色
+                $(document).on("click", "#add-auth-role", function () {
+
+                    $("#edit-role-btn").attr("EditType", "添加角色");
+
+                    var model = new Object();
+
+                    $.AJAXGetData("Post", "/SystemManager/GetRoleLists", model, function (data) {
+                        console.dir(data);
+                        if (data.States) {
+                            //数据编辑成功
+                            $("#system-role-table").empty();
+                            var appendHtml = "";
+                            if (data.Data.List.length > 0) {
+                                $.each(data.Data.List, function (key, val) {
+                                    appendHtml += "<tr>";
+                                    appendHtml += "<td><input class='checkRole' type='checkbox'  value=" + val.ObjectId + "></td>";
+                                    appendHtml += "<td >" + (parseInt(key) + 1) + "</td>";
+                                    appendHtml += "<td><span class='RoleName'>" + val.RoleName + "</span></td>";
+                                    appendHtml += "</tr>";
+                                });
+
+                                $("#system-role-table").append(appendHtml);
+                            }
+                        }
+                    });
+
+                    $('#add-role-user').modal('show');
+
+                });
+
+                //修改角色
+                $(document).on("click", "#edit-role-btn", function () {
+
+                    var objectId = $(this).attr("ObjectId");
+                    var editType = $(this).attr("EditType");
+
+                    var roleNames = "";
+                    var roleObjectIds = "";
+
+                    if ($("#selected-role-list").children("li").length > 0) {
+
+                        $("#selected-role-list").children("li").each(function (key, val) {
+                            roleNames += $(val).find("span").html() + ",";
+                            roleObjectIds += $(val).find("span").attr("ObjectId") + ",";
+                        });
+
+                        roleNames = roleNames.substr(0, roleNames.length - 1);
+                        roleObjectIds = roleObjectIds.substr(0, roleObjectIds.length - 1);
+                    }
+
+
+                    if (editType == "添加角色") {
+
+                        $("#RoleObjectIds").val(roleObjectIds);
+                        $("#RoleNames").val(roleNames);
+
+                        $('#add-role-user').modal('hide');
+
+                    } else {
+
+                        var model = new Object();
+
+                        model.objectId = objectId;
+                        model.roleNames = roleNames;
+                        model.roleObjectIds = roleObjectIds;
+
+                        $.AJAXGetData("Post", "/SystemManager/EditAuthRole", model, function (data) {
+                            if (data.States) {
+                                //数据编辑成功
+                                location.reload();
+                            }
+                        });
+
+                    }
+
+
+                });
+
+                //编辑角色人员
+                $(document).on("click", ".add-role", function () {
+
+                    $("#edit-role-btn").attr("ObjectId", $(this).parent().parent().find(".ObjectId").val());
+                    $("#edit-role-btn").attr("EditType", "编辑角色");
+
+                    var roleNames = $(this).find("span").html().split(',');
+                    var roleObjectIds = $(this).find("input").val().split(',');
+                    if (roleNames.length > 0) {
+                        $("#selected-role-list").empty();
+                        var roleHtml = "";
+                        for (var i = 0; i < roleNames.length; i++) {
+                            roleHtml += "<li style='display: inline-block;width: 100%;'><a class='label'><span ObjectId='" + roleObjectIds[i] + "'>" + roleNames[i] + "</span><i class='layui-icon close'>x</i></a></li>";
+                        }
+                        $("#selected-role-list").append(roleHtml);
+                    }
+
+                    var model = new Object();
+
+                    $.AJAXGetData("Post", "/SystemManager/GetRoleLists", model, function (data) {
+                        console.dir(data);
+                        if (data.States) {
+                            //数据编辑成功
+                            $("#system-role-table").empty();
+                            var appendHtml = "";
+                            if (data.Data.List.length > 0) {
+                                $.each(data.Data.List, function (key, val) {
+                                    appendHtml += "<tr>";
+                                    appendHtml += "<td><input class='checkRole' type='checkbox'  value=" + val.ObjectId + "></td>";
+                                    appendHtml += "<td >" + (parseInt(key) + 1) + "</td>";
+                                    appendHtml += "<td><span class='RoleName'>" + val.RoleName + "</span></td>";
+                                    appendHtml += "</tr>";
+                                });
+
+                                $("#system-role-table").append(appendHtml);
+                            }
+                        }
+                    });
+
+                    $('#add-role-user').modal('show');
+                });
+
+
+                //编辑权限
+                $(document).on("click", "#add-auth-btn", function () {
+
+                    var model = new Object();
+                    model.ObjectId = $("#ObjectId").val();
+                    model.RoleNames = $("#RoleNames").val();
+                    model.RoleObjectIds = $("#RoleObjectIds").val();
+                    model.AuthorityType = $("#AuthorityType").val();
+                    model.HasAuth = $("#HasAuth").is(":checked");
+                    model.SystemName = $("#SystemName").val();
+                    model.SystemCode = $("#SystemCode").val();
+                    model.PageUrl = $("#PageUrl").val();
+                    model.PageName = $("#PageName").val();
+                    model.ButtonName = $("#ButtonName").val();
+                    model.ButtonCode = $("#ButtonCode").val();
+
+                    $.AJAXGetData("Post", "/SystemManager/EditAuthority", model, function (data) {
+                        if (data.States) {
+                            //数据编辑成功
+                            location.reload();
+                        }
+                    });
+
+                });
+                //编辑单条权限edit-role
+                $(document).on("click", ".edit-role", function () {
+
+                    $("#ObjectId").val($(this).parent().parent().find(".ObjectId").val());
+                    $("#RoleNames").val($(this).parent().parent().find(".RoleNames").html());
+                    $("#RoleObjectIds").val($(this).parent().parent().find(".RoleObjectIds").val());
+                    $("#SystemName").val($(this).parent().parent().find(".SystemName").html());
+                    $("#SystemCode").val($(this).parent().parent().find(".SystemCode").val());
+                    $("#PageUrl").val($(this).parent().parent().find(".PageUrl").html());
+                    $("#PageName").val($(this).parent().parent().find(".PageName").html());
+                    $("#ButtonName").val($(this).parent().parent().find(".ButtonName").html());
+                    $("#ButtonCode").val($(this).parent().parent().find(".ButtonCode").val());
+                    if ($(this).parent().parent().find(".HasAuth").is(":checked")) {
+                        $("#HasAuth").attr("checked", "checked");
+                        $("#HasAuth").parent().attr("aria-checked", "true");
+                        $("#HasAuth").parent().addClass("checked");
+
+                    } else {
+                        $("#HasAuth").removeAttr("checked");
+                        $("#HasAuth").parent().attr("aria-checked", "false");
+                        $("#HasAuth").parent().removeClass("checked");
+                    }
+                    if ($(this).parent().parent().find(".AuthorityType").html() == "查看") {
+                        $("#AuthorityType").val(1);
+                    } else {
+                        $("#AuthorityType").val(2);
+                    }
+
+
+                    $('#myModal').modal('show');
+
+
+                });
+
+                //删除人员
+                $(document).on("click", ".delete-auth", function () {
+                    var flag = confirm("确定删除吗？");
+                    if (flag) {
+                        var model = new Object();
+                        model.ObjectId = $(this).attr("ObjectId");
+                        $.AJAXGetData("Post", "/SystemManager/AuthorityDelete", model, function (data) {
+                            if (data.States) {
+                                //数据编辑成功
+                                window.location.reload();
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
+    }
+
+    <div class="content-wrapper">
+
+        <section class="content-header">
+            <h4>
+                权限配置
+            </h4>
+            <ol class="breadcrumb">
+                <li><a><i class="fa fa-home"></i>首页</a></li>
+                <li class="active">权限配置</li>
+            </ol>
+        </section>
+
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header">
+                            <h3 class="box-title">
+                                <a id="add-auth"><span class="label label-success"><i class="fa fa-plus"></i>新增</span></a>
+                            </h3>
+                            @*<div class="box-tools">
+                                    <div class="input-group" style="width: 150px;">
+                                        <input type="text" class="form-control input-sm pull-right" placeholder="查找..." />
+                                        <div class="input-group-btn">
+                                            <a class="btn btn-sm btn-default"><i class="fa fa-search"></i></a>
+                                        </div>
+                                    </div>
+                                </div>*@
+                        </div>
+                        <div class="box-body table-responsive no-padding">
+
+                            <div>
+                                <table class="table table-hover" border="0" id="ctl00_cphMain_GridView1" style="border-width: 0px; border-collapse: collapse;">
+                                    <tr>
+                                        <th scope="col">序号</th>
+                                        <th scope="col">系统名称</th>
+                                        <th scope="col">页面名称</th>
+                                        <th scope="col">页面地址</th>
+                                        <th scope="col">按钮名称</th>
+                                        <th scope="col">角色名称</th>
+                                        <th scope="col">权限类型</th>
+                                        <th scope="col">权限</th>
+                                        <th scope="col">操作</th>
+                                    </tr>
+                                    @{
+                                        for (int i = 0; i < Model.Count; i++)
+
+                                        {
+                                            <tr>
+
+                                                <td>
+                                                    <span ObjectId="@Model[i].ObjectId">@(i + 1)</span>
+
+                                                    <input class="SystemCode" type="hidden" name="name" value="@Model[i].SystemCode" />
+                                                    <input class="ButtonCode" type="hidden" name="name" value="@Model[i].ButtonCode" />
+                                                    <input class="ObjectId" type="hidden" name="name" value="@Model[i].ObjectId" />
+                                                </td>
+                                                <td>
+                                                    <span class="SystemName">@Model[i].SystemName</span>
+                                                </td>
+                                                <td>
+                                                    <span class="PageName">@Model[i].PageName</span>
+                                                </td>
+                                                <td>
+                                                    <span class="PageUrl">@Model[i].PageUrl</span>
+                                                </td>
+                                                <td>
+                                                    <span class="ButtonName">@Model[i].ButtonName</span>
+                                                </td>
+                                                <td>
+                                                    <a title="添加人员" class="add-role" style="cursor:pointer;">
+                                                        <span class="label label-success RoleNames">@Model[i].RoleNames</span>
+                                                        <input class="RoleObjectIds" type="hidden" name="name" value="@Model[i].RoleObjectIds" />
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    @if (((DapperMvc.Enum.AuthorityType)(Convert.ToInt32(Model[i].AuthorityType))).ToString() == "编辑")
+                                                    {
+                                                        <a title="添加人员" class="add-user">
+                                                            <span class="label label-info AuthorityType">@((DapperMvc.Enum.AuthorityType)(Convert.ToInt32(Model[i].AuthorityType)))</span>
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a title="添加人员">
+                                                            <span class="label label-warning AuthorityType">@((DapperMvc.Enum.AuthorityType)(Convert.ToInt32(Model[i].AuthorityType)))</span>
+                                                        </a>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (Model[i].HasAuth)
+                                                    {
+                                                        <input class="HasAuth" type="checkbox" checked="checked">
+                                                    }
+                                                    else
+                                                    {
+                                                        <input class="HasAuth" type="checkbox">
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    <a ObjectId="@Model[i].ObjectId" title="修改" class="edit-role" style="cursor:pointer;">
+                                                        <span class="label label-primary"><i class="fa fa-edit"></i>修改</span>
+                                                    </a>
+                                                    <a ObjectId="@Model[i].ObjectId" title="删除" class="delete-auth" style="cursor:pointer;">
+                                                        <span class="label label-danger"><i class="fa fa-remove"></i>删除</span>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    }
+                                </table>
+                            </div>
+
+                        </div>
+                        <div class="box-footer">
+                            <nav aria-label="Page navigation" style="text-align:center">
+                                <ul class="pagination">
+                                    <li><a href="/SystemManager/AuthorityConfig?pageIndex=1">1</a></li>
+                                    <li class="active">
+
+                                        @if (Request.Params["pageIndex"] != null)
+                                        {
+                                            <a href="#">
+                                                @Request.Params["pageIndex"] 
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="#">
+                                                1
+                                            </a>
+                                        }
+
+                                    </li>
+                                    <li><a>跳至<input type="text" name="pageIndex" id="pageIndex" placeholder="页数" style="width:30px;height: 17px;border:0px;text-align:center" /></a></li>
+                                    <li><a href="/SystemManager/AuthorityConfig?pageIndex=@ViewBag.TotalPage">@ViewBag.TotalPage</a></li>
+                                    <li>
+                                        <a id="pageSkip" aria-label="Next">
+                                            <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+    <!--编辑-->
+    <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">系统角色</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="ObjectId" value="" />
+                    <input type="hidden" id="RoleObjectIds" value="" />
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="RoleName" class="control-label">系统名称</label>
+                                <input type="text" class="form-control" id="SystemName">
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="SystemCode" class="control-label">系统编码</label>
+                                <input type="text" class="form-control" id="SystemCode">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="PageName" class="control-label">页面名称</label>
+                                <input type="text" class="form-control" id="PageName">
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="PageUrl" class="control-label">页面地址</label>
+                                <input type="text" class="form-control" id="PageUrl">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="ButtonName" class="control-label">按钮名称</label>
+                                <input type="text" class="form-control" id="ButtonName">
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="ButtonCode" class="control-label">按钮编码</label>
+                                <input type="text" class="form-control" id="ButtonCode">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label for="RoleNames" class="control-label">角色名称</label>
+                                <input type="text" class="form-control" id="RoleNames" disabled="disabled">
+                                <a id="add-auth-role">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                    <span class="glyphicon-class">添加角色</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="RoleName" class="control-label">权限类型</label>
+                                <select class="form-control" id="AuthorityType">
+                                    <option value="1">查看</option>
+                                    <option value="2">编辑</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="RoleName" class="control-label">权限</label>
+                                <input class="form-control" id="HasAuth" type="checkbox">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a class="btn btn-primary" id="add-auth-btn">确定</a>
+                        <a class="btn btn-default" data-dismiss="modal">取消</a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <!--编辑-->
+    <!--配置角色人员-->
+    <div id="add-role-user" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">编辑角色</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <ul id="selected-role-list"></ul>
+                        </div>
+                        <div class="col-lg-8">
+                            <div id="role-list-div" class="row" style=" padding: 0 10px;height:360px;">
+                                <table class="table table-hover" border="0" style="border-width: 0px; border-collapse: collapse;">
+                                    <tr>
+                                        <th scope="col">选择</th>
+                                        <th scope="col">序号</th>
+                                        <th scope="col">角色名称</th>
+                                    </tr>
+                                    <tbody id="system-role-table"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-primary" id="edit-role-btn">确定</a>
+                    <a class="btn btn-default" data-dismiss="modal">取消</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--配置角色人员-->
+
+    @section PageStyle{
+        <style>
+            #add-role-user .label {
+                padding: 2px 5px;
+                background: #5FB878;
+                border-radius: 2px;
+                color: #fff;
+                display: block;
+                line-height: 20px;
+                height: 20px;
+                margin: 2px 5px 2px 0;
+                float: left;
+            }
+
+            #add-role-user .layui-icon {
+                font-family: layui-icon !important;
+                font-size: 16px;
+                font-style: normal;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                font-size: 16px !important;
+            }
+
+            #add-role-user i {
+                display: inline-block;
+                width: 18px;
+                height: 18px;
+                line-height: 18px;
+                text-align: center;
+            }
+        </style>
+    }

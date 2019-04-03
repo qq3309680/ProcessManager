@@ -1,0 +1,145 @@
+﻿@{
+    ViewBag.Title = "菜单管理";
+    Layout = "~/Views/Layout/BackGroundLayout.cshtml";
+}
+@model List<Domain.Sys_Menu>
+@section PageScript{
+    <script>
+        $(function () {
+            //删除事件
+            $(document).on("click", ".gvDelete", function () {
+                var flag = confirm("删除该记录将不能恢复，确定删除吗？");
+                if (flag) {
+                    var pk_Menu = $(this).data("pk_menu");
+                    var model = new Object();
+                    model.pk_Menu = pk_Menu;
+                    $.AJAXGetData("Post", "/BackGround/DeleteMenu", model, function (data) {
+                        console.dir(data);
+                        if (data.States) {
+                            //数据编辑成功
+                            window.location.href = "/BackGround/Menu";
+                        }
+                    });
+                }
+
+
+            });
+        });
+    </script>
+}
+<div class="content-wrapper">
+
+    <section class="content-header">
+        <h1>菜单管理
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="../"><i class="fa fa-home"></i>首页</a></li>
+            <li class="active">菜单管理</li>
+        </ol>
+    </section>
+
+    <section class="content">
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">
+                            <a id="ctl00_cphMain_hlAdd" href="/BackGround/MenuEdit?active=1"><span class="label label-success"><i class="fa fa-plus"></i>新增</span></a>
+                        </h3>
+                        <div class="box-tools">
+                            <div class="input-group" style="width: 150px;">
+                                <input name="ctl00$cphMain$txtKeyword" type="text" id="ctl00_cphMain_txtKeyword" class="form-control input-sm pull-right" placeholder="查找..." />
+                                <div class="input-group-btn">
+                                    <a id="ctl00_cphMain_lnbSearch" class="btn btn-sm btn-default" href="javascript:__doPostBack(&#39;ctl00$cphMain$lnbSearch&#39;,&#39;&#39;)"><i class="fa fa-search"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-body table-responsive no-padding">
+
+                        <div>
+                            <table class="table table-hover" border="0" id="ctl00_cphMain_GridView1" style="border-width: 0px; border-collapse: collapse;">
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">名称</th>
+                                    <th scope="col">图标</th>
+                                    <th scope="col">路径</th>
+                                    <th scope="col">类型</th>
+                                    <th scope="col">排序</th>
+                                    <th scope="col">显示</th>
+                                    <th scope="col">操作</th>
+                                </tr>
+                                @{
+                                    foreach (var item in Model)
+                                    {
+
+                                        string trClass = "";
+                                        if (item.ParentID == 0)
+                                        {
+                                            trClass = "parent";
+
+                                        }
+                                        else
+                                        {
+                                            trClass = "";
+                                        }
+                                    <tr class="@trClass">
+                                        <td class="id">
+                                            <span id="pk_Menu_@(item.pk_Menu)">@(item.pk_Menu)</span>
+                                        </td>
+                                        <td>
+                                            <span id="Name_CHS_@(item.pk_Menu)">@item.Name_CHS</span>
+                                        </td>
+                                        <td style="width: 160px;">
+                                            <span id="Icon_@(item.pk_Menu)">@item.Icon</span>
+                                        </td>
+                                        <td>
+                                            <span id="Url_@(item.pk_Menu)">@item.Url</span>
+                                        </td>
+                                        <td>
+                                            <span id="TypeID_@(item.pk_Menu)">
+                                                @if (item.TypeID == 0)
+                                                {
+                                                    
+                                                    <span style="color: #008000">菜单</span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color: #999999">页面</span>
+                                                }
+                                            </span>
+                                        </td>
+                                        <td style="color: #999999; width: 50px;">
+                                            <span id="SortID_@(item.pk_Menu)">@item.SortID</span>
+                                        </td>
+                                        <td>
+                                            <span>
+                                                <input id="Visible_@(item.pk_Menu)" type="checkbox" name="ctl00$cphMain$GridView1$ctl02$cbVisible" checked="checked" disabled="disabled" /></span>
+                                        </td>
+                                        <td>
+                                  @*          <a id="gvUp_@(item.pk_Menu)" title="上移" href="javascript:__doPostBack(&#39;ctl00$cphMain$GridView1$ctl02$gvUp&#39;,&#39;&#39;)"><span class="label label-back"><i class="fa fa-arrow-up"></i>上移</span></a>
+                                            <a id="gvDown_@(item.pk_Menu)" title="下移" href="javascript:__doPostBack(&#39;ctl00$cphMain$GridView1$ctl02$gvDown&#39;,&#39;&#39;)"><span class="label label-back"><i class="fa fa-arrow-down"></i>下移</span></a>*@
+                                            <a id="gvEdit_@(item.pk_Menu)" title="修改" href="/BackGround/MenuEdit?active=2&id=@(item.pk_Menu)"><span class="label label-primary"><i class="fa fa-edit"></i>修改</span></a>
+                                            <a  id="gvDelete_@(item.pk_Menu)" data-pk_Menu="@item.pk_Menu" title="删除" class="gvDelete"><span class="label label-danger"><i class="fa fa-remove"></i>删除</span></a>
+                                            @if (item.ParentID == 0)
+                                            {
+                                                <a id="gvAdd_@(item.pk_Menu)" title="新增" href="/BackGround/MenuEdit?active=1&parentId=@item.pk_Menu"><span class="label label-success"><i class="fa fa-plus"></i>新增</span></a>
+                                            }
+                                        </td>
+                                    </tr>
+                                    }
+                                    
+                                }
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+</div>
+

@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "菜单管理";
+    Layout = "~/Views/Layout/BackGroundLayout.cshtml";
+}
+@model Domain.Sys_Menu
+
+@section PageScript{
+    <script>
+        $(function () {
+
+            //保存
+            $(document).on("click", "#btnSave", function () {
+                var model = new Object();
+                model.pk_Menu = $("#pk_Menu").val();
+                model.ParentID = $("#ParentID").val();
+                model.Name_CHS = $("#Name_CHS").val();
+                model.Icon = $("#Icon").val();
+                model.Url = $("#Url").val();
+                model.SortID = $("#SortID").val();
+                model.TypeID = $("#TypeID").val();
+                model.Tag_CHS = $("#Tag_CHS").val();
+                model.Visible = $("#Visible").parent().attr("aria-checked");
+                console.dir(model);
+                $.AJAXGetData("Post", "/BackGround/SubmitMenuEdit", model, function (data) {
+                    console.dir(data);
+                    if (data.States) {
+                        //数据编辑成功
+                        window.location.href = "/BackGround/Menu";
+                    }
+                });
+            });
+
+            
+        });
+    </script>
+}
+
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1>菜单管理
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="../"><i class="fa fa-home"></i>首页</a></li>
+            <li class="active">菜单管理</li>
+        </ol>
+    </section>
+
+    <section class="content">
+
+        <div id="ctl00_cphMain_AlertDiv"></div>
+
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h3 class="box-title">
+                    <a id="ctl00_cphMain_hlBack" href="/BackGround/Menu"><span class="label label-back"><i class="fa fa-chevron-left"></i>返回</span></a>
+                </h3>
+            </div>
+
+            <div class="box-body">
+                <div class="row">
+                    <input type="hidden" id="pk_Menu" value="@Model.pk_Menu" />
+                    <input type="hidden" id="ParentID" value="@Model.ParentID" />
+                    <div class="col-md-6 form-group">
+                        <label><span id="ctl00_cphMain_Label1">名称</span></label>
+                        <input type="text" value="@Model.Name_CHS" id="Name_CHS" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 form-group">
+                        <label><span id="ctl00_cphMain_Label2">图标</span></label>
+                        <a href="/BackGround/IconListPage" target="_blank"><i class="fa fa-external-link"></i></a>
+                        <input  type="text" value="@Model.Icon" id="Icon" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 form-group">
+                        <label><span id="ctl00_cphMain_Label3">路径</span></label>
+                        <input  type="text" value="@Model.Url" id="Url" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 form-group">
+                        <label><span id="ctl00_cphMain_Label4">排序</span></label>
+                        <input  type="text" value="@Model.SortID" id="SortID" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 form-group">
+                        <label><span id="ctl00_cphMain_Label5">类型</span></label>
+                        <select id="TypeID" class="form-control select2">
+                            @if (Model.TypeID == 0)
+                            {
+                                <option selected="selected" value="0">菜单</option>
+                                <option value="1">页面</option>
+                            }
+                            else
+                            {
+                                <option value="0">菜单</option>
+                                <option selected="selected" value="1">页面</option>
+                            }
+
+
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 form-group">
+                        <label><span id="ctl00_cphMain_Label7">标签</span></label>
+                        <input  type="text" id="Tag_CHS" value="@Model.Tag_CHS" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 form-group">
+                        <label><span id="ctl00_cphMain_Label6">显示</span></label>
+                        <br>
+
+                        @if (Model.Visible)
+                        {
+                            <div  class="icheckbox_flat-blue checked" aria-checked="true" aria-disabled="false" style="position: relative;">
+                                <input id="Visible" type="checkbox" checked="checked" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;">
+                            </div>
+                        }
+                        else
+                        {
+                            <div  class="icheckbox_flat-blue" aria-checked="false" aria-disabled="false" style="position: relative;">
+                                <input id="Visible" type="checkbox" style="position: absolute; top: -20%; left: -20%; display: block; width: 140%; height: 140%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;">
+                            </div>
+                        }
+
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="box-footer">
+                <a id="btnSave" class="btn btn-primary">保存</a>
+                <a id="btnCancel" class="btn btn-default" href="/BackGround/Menu">取消</a>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+

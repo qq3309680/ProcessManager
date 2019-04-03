@@ -1,0 +1,88 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>流程包信息</title>
+    <link href="~/Contents/Css/pixel-admin.min.css" rel="stylesheet" />
+    <link href="~/Contents/Css/ligerUI/Aqua/css/ligerui-all.css" rel="stylesheet" />
+    <link href="~/Contents/Css/ligerUI/ligerui-icons.css" rel="stylesheet" />
+    <link href="~/Contents/Css/H3Default/H3-All.css" rel="stylesheet" />
+    <script src="~/Contents/Script/jquery.js"></script>
+    <script src="~/Contents/LigerUI/lib/ligerUI/js/ligerui.all.js"></script>
+    <script src="~/Contents/LigerUI/lib/ligerUI/js/plugins/ligerDrag.js"></script>
+    <script src="~/Contents/Script/H3AdminPlugins.js"></script>
+    <link href="~/Contents/Css/designer/css/designer.css" rel="stylesheet" />
+    <link href="~/Contents/Css/designer/css/property.css" rel="stylesheet" />
+    <script src="~/Contents/designer/Activity.js"></script>
+    <script src="~/Contents/designer/ActivityDrag.js"></script>
+    <script src="~/Contents/designer/ActivityModel.js"></script>
+    <script src="~/Contents/designer/Line.js"></script>
+    <script src="~/Contents/designer/misc.js"></script>
+    <script src="~/Contents/designer/Workflow.js"></script>
+    <script src="~/Contents/designer/WorkflowDocument.js"></script>
+    <script src="~/Contents/designer/loader.js"></script>
+    <script src="~/Contents/designer/DataItem.js"></script>
+    <script src="~/Contents/designer/Porperty.js"></script>
+    <script src="~/Contents/designer/ActivityEvent.js"></script>
+    <script src="~/Contents/designer/SubInstanceDataMap.js"></script>
+    <script src="~/Contents/designer/ContextMenu.js"></script>
+    <script src="~/Contents/designer/Package.js"></script>
+    <script src="~/Contents/designer/WorkflowTrace.js"></script>
+    <script src="~/Contents/designer/FormulaEditable.js"></script>
+    <link href="~/Contents/designer/chosen/chosen.css" rel="stylesheet" />
+    <script src="~/Contents/designer/chosen/chosen.jquery.min.js"></script>
+    <script>
+      
+        $(function () {
+            $("#H3ToolBar").AspLinkToolBar();
+            $("#H3Panel").BuildPanel();
+        });
+     
+
+    </script>
+</head>
+<body>
+    <div id="H3ToolBar">
+        <a data-icon="fa fa-save">保存</a>
+    </div>
+    <div id="H3Panel">
+        <span>基本信息</span>
+        <table>
+            
+            <tr>
+                <td>编码</td>
+                <td>
+                    
+                </td>
+            </tr>
+            <tr>
+                <td>显示名称</td>
+                <td>
+                    <input type="text" name="name" value=" " />
+                    
+                </td>
+            </tr>
+            <tr>
+                <td>自定义表单</td>
+                <td>
+                    <input type="text" name="name" value=" " />
+                    
+                </td>
+            </tr>
+             <tr>
+                <td>排序</td>
+                <td>
+                    <input type="text" name="name" value=" " />
+                    
+                </td>
+            </tr>
+         
+        </table>
+    </div>
+</body>
+</html>

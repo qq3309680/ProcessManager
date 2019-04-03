@@ -1,0 +1,14 @@
+E:\users\tanz01\DesignPattern\DapperMVC\IService\bin\Release\IService.dll
+E:\users\tanz01\DesignPattern\DapperMVC\IService\bin\Release\IService.pdb
+E:\users\tanz01\DesignPattern\DapperMVC\IService\bin\Release\Domain.dll
+E:\users\tanz01\DesignPattern\DapperMVC\IService\bin\Release\Domain.pdb
+E:\users\tanz01\DesignPattern\DapperMVC\IService\obj\Release\IService.csprojResolveAssemblyReference.cache
+E:\users\tanz01\DesignPattern\DapperMVC\IService\obj\Release\IService.dll
+E:\users\tanz01\DesignPattern\DapperMVC\IService\obj\Release\IService.pdb
+E:\ProcessmManagerSystem\IService\bin\Release\IService.dll
+E:\ProcessmManagerSystem\IService\bin\Release\IService.pdb
+E:\ProcessmManagerSystem\IService\bin\Release\Domain.dll
+E:\ProcessmManagerSystem\IService\bin\Release\Domain.pdb
+E:\ProcessmManagerSystem\IService\obj\Release\IService.csprojResolveAssemblyReference.cache
+E:\ProcessmManagerSystem\IService\obj\Release\IService.dll
+E:\ProcessmManagerSystem\IService\obj\Release\IService.pdb

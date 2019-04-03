@@ -1,0 +1,67 @@
+﻿@helper LogisicsInfo(List<Domain.LogisticsInfo> List)
+{
+    
+    <div class="custom-bg-white">
+        <div class="jazz-timeline-wrapper">
+            <div class="jazz-timeline white-timeline bordered-timeline one-sided">
+
+                @{
+        
+                    if (List.Count > 0)
+                    {
+                        foreach (var item in List)
+                        {
+                    
+                    <div class="timeline-post">
+                        <div class="timeline-meta for-large-icons">
+                            <div class="meta-details">操作人:@item.OperationPerson</div>
+                        </div>
+                        <div class="timeline-icon icon-larger iconbg-turqoise icon-color-white">
+                            <div class="icon-placeholder">@item.OperationTime.ToString("yyyy-MM-dd") <span>@item.OperationTime.ToString("HH:MM")</span></div>
+                            <div class="timeline-bar"></div>
+                        </div>
+                        <div class="timeline-content">
+                            <h2 class="content-title">@item.CurrentSite </h2>
+                            <div class="content-details">
+                                @if (item.LoadScan)
+                                {
+                                    <p>
+                                        @item.CurrentSite : 装车发往 @item.NextSite
+                                    </p>
+                                }
+                                @if (item.UnloadScan)
+                                {
+                                    <p>
+                                        @item.CurrentSite : 卸车扫描
+                                    </p>
+                               
+                                }
+
+                            </div>
+                        </div>
+                        <!-- timeline content -->
+                    </div>
+                    <!-- .timeline-post -->
+                  
+                        }
+                    }
+                    else
+                    {
+                    <h2>暂时没有信息</h2>
+                    }
+        
+                }
+
+
+
+
+            </div>
+            <!-- .timeline -->
+        </div>
+        <!-- .jazz-timeline-wrapper -->
+
+    </div>
+
+    
+
+}

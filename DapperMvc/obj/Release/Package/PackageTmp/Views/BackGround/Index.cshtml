@@ -1,0 +1,403 @@
+﻿@{
+    Layout = "~/Views/Layout/BackGroundLayout.cshtml";
+    ViewBag.Title = "我的主页";
+}
+@section PageScript{
+    <script>
+        $(function () {
+            //添加便签
+            $(document).on("click", "#addNoteBtn", function () {
+                $('#addNoteModal').modal('show');
+            });
+        });
+    </script>
+}
+<div class="content-wrapper">
+
+    <section class="content-header">
+        <h1>控制面板
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="../"><i class="fa fa-home"></i>首页</a></li>
+            <li class="active">控制面板</li>
+        </ol>
+    </section>
+
+    <section class="content">
+
+        <div class="row">
+            <div class="col-lg-3 col-xs-6">
+                <!-- 考勤 -->
+                <div class="small-box bg-aqua">
+                    <div id="ctl00_cphMain_AttendanceDiv" class="inner">
+                        <h3>未签到</h3>
+                        <p>请到考勤管理签到</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-clock-o"></i>
+                    </div>
+                    <a href="../Attendance/List.aspx?active=23,24" class="small-box-footer">更多 <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-xs-6">
+                <!-- 文件管理 -->
+                <div class="small-box bg-green">
+                    <div id="ctl00_cphMain_DocumentDiv" class="inner">
+                        <h3>0</h3>
+                        <p>文件管理</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-folder-open-o"></i>
+                    </div>
+                    <a href="../Document/List.aspx?active=62,63" class="small-box-footer">更多 <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-xs-6">
+                <!-- 通讯录 -->
+                <div class="small-box bg-yellow">
+                    <div id="ctl00_cphMain_AddressDiv" class="inner">
+                        <h3>0</h3>
+                        <p>通讯录</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-phone"></i>
+                    </div>
+                    <a href="../Address/List.aspx?active=71,72" class="small-box-footer">更多 <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-xs-6">
+                <!-- 讨论区 -->
+                <div class="small-box bg-red">
+                    <div id="ctl00_cphMain_ForumDiv" class="inner">
+                        <h3>0</h3>
+                        <p>讨论区</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-comments-o"></i>
+                    </div>
+                    <a href="../Forum/List.aspx?active=76,77" class="small-box-footer">更多 <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+        </div>
+
+        <div class="row">
+
+            <section class="col-lg-7 connectedSortable">
+
+                <!-- 公告通知 -->
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">公告通知</h3>
+                        <div class="pull-right box-tools">
+                            <div class="btn-group">
+                                <button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bars"></i></button>
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                    <li><a href="../Notice/ViewList.aspx?active=34,37">公告通知</a></li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-primary btn-sm" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            <button class="btn btn-primary btn-sm" data-widget="remove"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="ctl00_cphMain_NoticeDiv" class="box-body table-responsive no-padding">
+                        <table class="table table-hover">
+                            <tr>
+                                <th style="width: 80px">发布</th>
+                                <th style="width: 100px">日期</th>
+                                <th style="width: 80px">状态</th>
+                                <th>标题</th>
+                                <th style="width: 50px;"></th>
+                            </tr>
+                            <tr>
+                                <td>总公司</td>
+                                <td>2015-10-23</td>
+                                <td><span style="font-size: 9pt; color: #fff; padding: 2px 4px; border-radius: 3px; background-color: #DD4B39">紧急</span></td>
+                                <td title="请各部门同事务必9点到会议室开会，不得迟到！">周一上午全体员工会议</td>
+                                <td><a href="../Notice/View.aspx?id=XiRAJSMhKiYz&active=34,37"><span class="btn btn-default" style="padding: 2px 5px; font-size: 9pt;"><i class="fa fa-search"></i>查看</span></a></td>
+                            </tr>
+                            <tr>
+                            <tr>
+                                <td>总公司</td>
+                                <td>2015-10-22</td>
+                                <td><span style="font-size: 9pt; color: #fff; padding: 2px 4px; border-radius: 3px; background-color: #00C0EF">一般</span></td>
+                                <td title="请各部门做好节前卫生工作，祝大家元旦快乐">元旦放假3天</td>
+                                <td><a href="../Notice/View.aspx?id=XiRAJSMhKiYy&active=34,37"><span class="btn btn-default" style="padding: 2px 5px; font-size: 9pt;"><i class="fa fa-search"></i>查看</span></a></td>
+                            </tr>
+                            <tr>
+                            <tr>
+                                <td>总公司</td>
+                                <td>2015-10-21</td>
+                                <td><span style="font-size: 9pt; color: #fff; padding: 2px 4px; border-radius: 3px; background-color: #F39C12">重要</span></td>
+                                <td title="请各部门经理做好年终总结报告，以便在年会上发表">关于年度总结报告</td>
+                                <td><a href="../Notice/View.aspx?id=XiRAJSMhKiYx&active=34,37"><span class="btn btn-default" style="padding: 2px 5px; font-size: 9pt;"><i class="fa fa-search"></i>查看</span></a></td>
+                            </tr>
+                            <tr>
+                        </table>
+                    </div>
+
+                </div>
+
+                <!-- 流程管理 -->
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">流程管理</h3>
+                        <div class="pull-right box-tools">
+                            <div class="btn-group">
+                                <button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bars"></i></button>
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                    <li><a href="../Process/List.aspx?active=29,30">流程管理</a></li>
+                                    <li><a href="../Process/Edit.aspx?active=29,30">新增流程</a></li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-primary btn-sm" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            <button class="btn btn-primary btn-sm" data-widget="remove"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="ctl00_cphMain_ProcessDiv" class="box-body table-responsive no-padding">
+                        <table class="table table-hover">
+                            <tr>
+                                <th style="width: 80px">类型</th>
+                                <th style="width: 100px">日期</th>
+                                <th style="width: 80px">状态</th>
+                                <th>标题</th>
+                                <th style="width: 50px;"></th>
+                            </tr>
+                            <tr>
+                                <td>报销</td>
+                                <td>2015-10-10</td>
+                                <td><span style="font-size: 9pt; color: #fff; padding: 2px 4px; border-radius: 3px; background-color: #00A65A">已批准</span></td>
+                                <td title="商品描述：金士顿固态硬盘（128G）
+商品价格：299/颗
+商品数量：5
+购买原因：升级公司电脑硬件，提高工作效率">购买5颗金士顿固态硬盘</td>
+                                <td><a href="../Process/Edit.aspx?id=XiRAJSMhKiYx&active=29,30"><span class="btn btn-default" style="padding: 2px 5px; font-size: 9pt;"><i class="fa fa-search"></i>查看</span></a></td>
+                            </tr>
+                            <tr>
+                        </table>
+                    </div>
+
+                </div>
+
+                <!-- 工作计划 -->
+                <div class="box">
+                    <div class="box-header">
+                        <h3 class="box-title">工作计划</h3>
+                        <div class="pull-right box-tools">
+                            <div class="btn-group">
+                                <button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bars"></i></button>
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                    <li><a href="../Plan/List.aspx?active=58,59">工作计划</a></li>
+                                    <li><a href="../Plan/Edit.aspx?active=58,59">新增计划</a></li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-primary btn-sm" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            <button class="btn btn-primary btn-sm" data-widget="remove"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="ctl00_cphMain_PlanDiv" class="box-body table-responsive no-padding"></div>
+
+                </div>
+
+            </section>
+
+            <section class="col-lg-5 connectedSortable">
+
+                <div class="box box-solid bg-green-gradient">
+                    <div class="box-header">
+                        <i class="fa fa-calendar"></i>
+                        <h3 class="box-title">行事历</h3>
+                        <div class="pull-right box-tools">
+                            <div class="btn-group">
+                                <button class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bars"></i></button>
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                    <li><a href="../Calendar/List.aspx?active=52,53">日程列表</a></li>
+                                    <li><a href="../Calendar/Edit.aspx?active=52,53">新增日程</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="../Calendar/Month.aspx?active=52,55">我的日历</a></li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-success btn-sm" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            <button class="btn btn-success btn-sm" data-widget="remove"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body no-padding">
+
+                        <style>
+                            .cal_header {
+                                text-align: center;
+                            }
+
+                            .cal_title a {
+                                color: #ffffff !important;
+                                padding: 0 10px;
+                            }
+
+                            .cal_day {
+                                position: relative;
+                            }
+                        </style>
+
+                        <table id="ctl00_cphMain_Calendar1" cellspacing="0" cellpadding="2" title="日历" border="0" style="color: #404040; border-width: 0px; font-family: Arial; font-size: 8pt; height: 240px; width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td colspan="7" style="background-color: #00C86C; border-color: Silver;">
+                                    <table class="cal_title" cellspacing="0" border="0" style="color: White; font-family: Arial; font-size: 9pt; font-weight: bold; width: 100%; border-collapse: collapse;">
+                                        <tr>
+                                            <td style="color: #3E75A4; font-size: 10pt; font-weight: bold; width: 15%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','V6575')" style="color: #3E75A4" title="转到上一个月">&lt;</a></td>
+                                            <td align="center" style="width: 70%;">2018年2月</td>
+                                            <td align="right" style="color: #3E75A4; font-size: 10pt; font-weight: bold; width: 15%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','V6634')" style="color: #3E75A4" title="转到下一个月">&gt;</a></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="cal_header" align="center" abbr="星期一" scope="col" style="color: White; background-color: #00C86C; border-color: #00C86C; font-weight: bold; height: 20px;">一</th>
+                                <th class="cal_header" align="center" abbr="星期二" scope="col" style="color: White; background-color: #00C86C; border-color: #00C86C; font-weight: bold; height: 20px;">二</th>
+                                <th class="cal_header" align="center" abbr="星期三" scope="col" style="color: White; background-color: #00C86C; border-color: #00C86C; font-weight: bold; height: 20px;">三</th>
+                                <th class="cal_header" align="center" abbr="星期四" scope="col" style="color: White; background-color: #00C86C; border-color: #00C86C; font-weight: bold; height: 20px;">四</th>
+                                <th class="cal_header" align="center" abbr="星期五" scope="col" style="color: White; background-color: #00C86C; border-color: #00C86C; font-weight: bold; height: 20px;">五</th>
+                                <th class="cal_header" align="center" abbr="星期六" scope="col" style="color: White; background-color: #00C86C; border-color: #00C86C; font-weight: bold; height: 20px;">六</th>
+                                <th class="cal_header" align="center" abbr="星期日" scope="col" style="color: White; background-color: #00C86C; border-color: #00C86C; font-weight: bold; height: 20px;">日</th>
+                            </tr>
+                            <tr>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6603')" style="color: #005E33" title="1月29日">29</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6604')" style="color: #005E33" title="1月30日">30</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6605')" style="color: #005E33" title="1月31日">31</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6606')" style="color: White" title="2月1日">1</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6607')" style="color: White" title="2月2日">2</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6608')" style="color: White" title="2月3日">3</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6609')" style="color: White" title="2月4日">4</a></td>
+                            </tr>
+                            <tr>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6610')" style="color: White" title="2月5日">5</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6611')" style="color: White" title="2月6日">6</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6612')" style="color: White" title="2月7日">7</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6613')" style="color: White" title="2月8日">8</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6614')" style="color: White" title="2月9日">9</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6615')" style="color: White" title="2月10日">10</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6616')" style="color: White" title="2月11日">11</a></td>
+                            </tr>
+                            <tr>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6617')" style="color: White" title="2月12日">12</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6618')" style="color: White" title="2月13日">13</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6619')" style="color: White" title="2月14日">14</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6620')" style="color: White" title="2月15日">15</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6621')" style="color: White" title="2月16日">16</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6622')" style="color: White" title="2月17日">17</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6623')" style="color: White" title="2月18日">18</a></td>
+                            </tr>
+                            <tr>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6624')" style="color: White" title="2月19日">19</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6625')" style="color: White" title="2月20日">20</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6626')" style="color: White" title="2月21日">21</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6627')" style="color: White" title="2月22日">22</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6628')" style="color: White" title="2月23日">23</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #005E33; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6629')" style="color: White" title="2月24日">24</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6630')" style="color: White" title="2月25日">25</a></td>
+                            </tr>
+                            <tr>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6631')" style="color: White" title="2月26日">26</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6632')" style="color: White" title="2月27日">27</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: White; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6633')" style="color: White" title="2月28日">28</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6634')" style="color: #005E33" title="3月1日">1</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6635')" style="color: #005E33" title="3月2日">2</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6636')" style="color: #005E33" title="3月3日">3</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6637')" style="color: #005E33" title="3月4日">4</a></td>
+                            </tr>
+                            <tr>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6638')" style="color: #005E33" title="3月5日">5</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6639')" style="color: #005E33" title="3月6日">6</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6640')" style="color: #005E33" title="3月7日">7</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6641')" style="color: #005E33" title="3月8日">8</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6642')" style="color: #005E33" title="3月9日">9</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6643')" style="color: #005E33" title="3月10日">10</a></td>
+                                <td class="cal_day" align="center" valign="middle" style="color: #005E33; background-color: #00C86C; border-color: Silver; font-size: 10pt; width: 14%;"><a href="javascript:__doPostBack('ctl00$cphMain$Calendar1','6644')" style="color: #005E33" title="3月11日">11</a></td>
+                            </tr>
+                        </table>
+
+                    </div>
+
+                </div>
+
+                <!-- 我的便签 -->
+                <div class="box box-success">
+                    <div class="box-header">
+                        <i class="fa fa-pencil"></i>
+                        <h3 class="box-title">我的便签</h3>
+                        <div class="pull-right box-tools">
+                            <div class="btn-group">
+                                <button class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bars"></i></button>
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                    <li><a href="#">我的便签</a></li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-success btn-sm" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                            <button class="btn btn-success btn-sm" data-widget="remove"><i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="box-body chat" id="chat-box">
+                        <div id="ctl00_cphMain_MemoDiv">
+                            <div class="item" style="position: relative;">
+                                <img src="../../images/userHeader.jpg" class="online">
+                                <p class="message" style="width: 300px; overflow: hidden; /*超出部分隐藏*/  white-space: nowrap; /*不换行*/
+text-overflow: ellipsis; /*超出部分文字以...显示*/">
+                                    <a href="../User/Profile.aspx" class="name" style="width: 300px; overflow: hidden; /*超出部分隐藏*/ white-space: nowrap; /*不换行*/text-overflow: ellipsis; /*超出部分文字以...显示*/"><small class="text-muted pull-right"><i class="fa fa-clock-o"></i>2018-03-18 </small>找经理签字</a>请假条
+                                </p>
+                                <div style="width: 40px; height: 40px; position: absolute; top: 0; right: 0;">
+                                    <a title="定时提醒" class="fa fa-fw fa-bell" style="width: 20px; color: #398439; cursor: pointer;"></a>
+                                    <a title="取消提示" class="fa fa-fw fa-close" style="width: 20px; color: red; cursor: pointer;"></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <div class="input-group" id="addNoteBtn">
+                            <input name="ctl00$cphMain$txtMemoContent" type="text" id="ctl00_cphMain_txtMemoContent" class="form-control" placeholder="便签内容" />
+                            <div class="input-group-btn">
+                                <a class="btn btn-success" ><i class="fa fa-plus"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!--添加流程弹出框-->
+                <div id="addNoteModal" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">我的便签</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="NoteTitle" class="control-label">标题</label>
+                                    <input type="text" class="form-control" id="NoteTitle">
+                                </div>
+                                <div class="form-group">
+                                    <label for="NoteContent" class="control-label">内容</label>
+                                    <textarea  class="form-control" id="NoteContent"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <a class="btn btn-default" data-dismiss="modal">取消</a>
+                                <a class="btn btn-primary" id="submitAddNote">确定</a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+
+    </section>
+
+</div>
+

@@ -1,0 +1,223 @@
+﻿@{
+    Layout = null;
+}
+@model Domain.OT_WorkflowTemplate
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>流程包信息</title>
+    <link href="~/Contents/Css/pixel-admin.min.css" rel="stylesheet" />
+    <link href="~/Contents/Css/ligerUI/Aqua/css/ligerui-all.css" rel="stylesheet" />
+    <link href="~/Contents/Css/ligerUI/ligerui-icons.css" rel="stylesheet" />
+    <link href="~/Contents/Css/H3Default/H3-All.css" rel="stylesheet" />
+    <script src="~/Contents/Script/jquery.js"></script>
+    <script src="~/Contents/LigerUI/lib/ligerUI/js/ligerui.all.js"></script>
+    <script src="~/Contents/LigerUI/lib/ligerUI/js/plugins/ligerDrag.js"></script>
+    <script src="~/Contents/Script/H3AdminPlugins.js"></script>
+    <script src="~/Contents/underscore.js"></script>
+    <script src="~/Contents/ExtentScript.js"></script>
+    <script>
+
+        $(function () {
+
+            var data = JSON.parse($(window.parent.document).find("#treeData").val());
+
+
+            //构建分类树
+
+            var fileArr = _.filter(data, function (val) {
+                if (val.isprocesstype) {
+                    return val;
+                }
+            });
+
+            var getSonFile = function (arr, parentObj) {
+
+                var childArr = new Array();
+
+                $.each(arr, function (key, val) {
+                    if (val.pid.replace(/\s+/g, "") == parentObj.id) {
+
+                        var pObj = new Object();
+                        pObj.id = val.id;
+                        pObj.text = val.text;
+
+                        var children = _.filter(arr, function (o) {
+                            if (o.pid == val.id) {
+                                return o;
+                            }
+                        });
+                        if (children.length > 0) {
+                            pObj.children = getSonFile(arr, val);
+                        }
+
+                        childArr.push(pObj);
+
+                    }
+                });
+
+                if (childArr.length > 0) {
+                    parentObj.children = childArr;
+                    $.each(childArr, function (sonKey, sonVal) {
+                        getSonFile(arr, sonVal);
+                    })
+
+
+
+                }
+
+                return parentObj;
+            }
+
+
+            var getFileTree = function (arr) {
+
+                var FileTreeArr = new Array();
+
+                $.each(arr, function (key, val) {
+                    if (val.pid.replace(/\s+/g, "") == "0") {
+                        var pObj = new Object();
+                        pObj.id = val.id;
+                        pObj.text = val.text;
+                        FileTreeArr.push(pObj);
+                    }
+                });
+
+                $.each(FileTreeArr, function (key, val) {
+
+                    val = getSonFile(arr, val);
+
+                });
+
+                return FileTreeArr;
+            }
+
+
+            var treeObj = getFileTree(fileArr);
+
+            var combo = $("#ParentObjectID").ligerComboBox({
+                width: 255,
+                selectBoxWidth: 255,
+                selectBoxHeight: 255,
+                treeLeafOnly: false,
+                initValue: $("#ParentObjectID").val(),
+                textField: 'text',
+                valueField: 'id',
+                hideOnLoseFocus: false,
+                tree: {
+                    data: treeObj,
+                    checkbox: false
+                },
+                onSelected: function (id, value) {
+                    //id为空值，name为选择的值
+                    $("#ParentObjectID").val(value);//下拉框选择后文本框的值
+                    $("#ParentObjectID").blur();
+                }
+
+            });
+
+            $("#H3ToolBar").AspLinkToolBar();
+            $("#H3Panel").BuildPanel();
+
+            //保存按钮
+            $("#save-btn").on("click", function () {
+                var model = new Object();
+                model.ObjectId = $("#ObjectID").val();
+                model.ProcessName = $("#ProcessName").val();
+                model.ParentObjectId = $("#ParentObjectID").val();
+                model.ParentPropertyName = combo.getText();
+                model.Sort = $("#Sort").val();
+                model.Creator = $("#Creator").val();
+                model.ModifiedBy = $("#ModifiedBy").val();
+                model.CreatedTime = $("#CreatedTime").val();
+                model.ModifiedTime = $("#ModifiedTime").val();
+                model.BizObjectSchemaCode = $("#BizObjectSchemaCode").val();
+                model.BizObjectSchemaField = $("#BizObjectSchemaField").val();
+                $.AJAXGetData("Post", "/Process/EditWorkflowTemplate", { Action: 2, ObjectId: model.ObjectId, ProcessName: model.ProcessName, ProcessParentId: combo.getValue(), ProcessCode: "", ParentPropertyName: model.ParentPropertyName, Sort: model.Sort, Creator: model.Creator, ModifiedBy: model.ModifiedBy, CreatedTime: model.CreatedTime, ModifiedTime: model.ModifiedTime, BizObjectSchemaCode: model.BizObjectSchemaCode, BizObjectSchemaField: model.BizObjectSchemaField }, function (data) {
+                    if (data.States) {
+                        //数据编辑成功
+                        alert("成功");
+                        window.parent.location.href = "/Process/ProceduralModel";
+                    }
+
+                });
+
+            });
+
+        });
+
+
+    </script>
+</head>
+<body>
+    <div id="H3ToolBar">
+        <a data-icon="fa fa-save" id="save-btn">保存</a>
+    </div>
+    <div id="H3Panel">
+        <span>基本信息</span>
+
+        <table>
+
+            <tr>
+                <td>编码</td>
+                <td>
+                    <input type="text" name="name" id="WorkflowCode" value="@Model.WorkflowCode" readonly="readonly" disabled="disabled" />
+                    <input type="hidden" id="ObjectID" name="name" value="@Model.ObjectID" />
+                </td>
+            </tr>
+            <tr>
+                <td>显示名称</td>
+                <td>
+                    <input type="text" name="name" id="ProcessName" value="@Model.ProcessName.Trim()" />
+                </td>
+            </tr>
+            <tr>
+                <td>所属分类</td>
+                <td>
+                    <input type="text" name="name" id="ParentObjectID" value="@Model.ParentObjectID" />
+                </td>
+            </tr>
+            <tr>
+                <td>排序</td>
+                <td>
+                    <input type="text" name="name" id="Sort" value="@Model.Sort" />
+                </td>
+            </tr>
+            <tr>
+                <td>创建人</td>
+                <td>
+                    <input type="text" disabled="disabled" name="name" id="Creator" value="@Model.Creator" />
+                </td>
+            </tr>
+            <tr>
+                <td>修改人</td>
+                <td>
+                    <input type="text"  disabled="disabled" name="name" id="ModifiedBy" value="@Model.ModifiedBy" />
+                </td>
+            </tr>
+            <tr>
+                <td>创建时间</td>
+                <td>
+                    <input type="text" disabled="disabled" name="name" id="CreatedTime" value="@Model.CreatedTime" />
+                </td>
+            </tr>
+            <tr>
+                <td>修改时间</td>
+                <td>
+                    <input type="text" disabled="disabled" name="name" id="ModifiedTime" value="@Model.ModifiedTime" />
+                </td>
+            </tr>
+            <tr>
+                <td>标签</td>
+                <td>
+                    <input type="hidden" name="name" id="BizObjectSchemaCode" value="@Model.BizObjectSchemaCode" />
+                    <input type="text" name="name" id="BizObjectSchemaField" value="@Model.BizObjectSchemaField" />
+                </td>
+            </tr>
+
+        </table>
+    </div>
+</body>
+</html>

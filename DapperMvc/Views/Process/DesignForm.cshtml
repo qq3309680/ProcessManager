@@ -1,0 +1,1210 @@
+﻿@{
+    Layout = "~/Views/Layout/PageLayout.cshtml";
+    ViewBag.Title = "表单设计";
+}
+@model Domain.ProcessTableModel
+<script src="~/Contents/Script/Jquery.AddRow.js"></script>
+<link href="~/Contents/Css/toolBarAnimate.css" rel="stylesheet" />
+<style>
+    .ControlContainer {
+        border: 2px dashed #00F !important;
+    }
+    /*字段单元格样式*/
+    .field-div {
+        padding-left: 11px;
+        padding-right: 11px;
+        border: 1px dashed #B6ACAC;
+        vertical-align: middle;
+        min-height: 33px;
+    }
+
+    .fixdInfo span {
+        margin: 2px;
+        border: 0;
+        /*min-height: 30px;*/
+        min-width: 100%;
+        display: inline-block;
+        text-align: center;
+        line-height: 28px;
+        color: #B6ACAC;
+        word-wrap: break-word;
+    }
+
+    .InfoName {
+        background-color: #f7f7f7;
+    }
+
+    .InfoValue {
+        background-color: #fff;
+    }
+
+
+    .field-span:hover {
+        /*border: 2px dashed #00F !important;*/
+        cursor: move;
+    }
+
+    .fixdInfo input {
+        margin: 2px;
+        border: 0;
+        min-height: 30px;
+        min-width: 100%;
+        text-align: center;
+        line-height: 28px;
+        background-color: #fff;
+        color: #B6ACAC;
+    }
+
+    .field-input {
+        display: none;
+    }
+
+    .EditBtn:hover {
+        color: #fff;
+        background-color: #563d7c;
+    }
+
+    .RightMoustBtn:hover {
+        border: 1px dashed #000000;
+    }
+
+    .table-bordered {
+        border: 0;
+    }
+
+    th {
+        background-color: #f7f7f7;
+    }
+
+        th > span {
+            background-color: #f7f7f7;
+        }
+
+    .isChange {
+        border: 2px dashed #ffd800;
+    }
+
+    .isAdd {
+        border: 2px dashed #ff0000;
+    }
+</style>
+<script>
+
+    /*********************************************************************/
+    /*总体说明：
+    /*1、利用fieldAttr标签属性标记字段的变化
+    /*2、声明activeElement为拖拽活动的单元格
+    /*3、声明activeField为活动的字段标签
+    /*4、声明tableModel原有表单数据model
+    /*********************************************************************/
+
+
+    //当前活动单元格
+    var activeElement;
+    var activeField;
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+
+    //最初开始拖动的节点触发
+    function dragBegin(ev) {
+        //ev.dataTransfer.setData("Text", ev.target.id);
+        ev.dataTransfer.setData("ElementId", ev.target.id);
+        //console.dir($(ev.target).parent().attr("id"));
+    }
+
+    //放下时触发
+    function drop(ev) {
+        ev.preventDefault();
+        var ElementId = ev.dataTransfer.getData("ElementId");
+
+        var moveInput = $("#" + ElementId.replace("span", "input"));
+        var moveSpan = $("#" + ElementId);
+
+        //$(moveTarget).attr("id", ElementId + "_" + data);
+        //ev.target.appendChild(document.getElementById(data));
+        console.dir(ev.target.id);
+        if (ev.target.id.indexOf("span") > -1) {
+            $(ev.target).parent().append($(moveInput));
+            $(ev.target).parent().append($(moveSpan));
+            if ($(ev.target).hasClass("ControlContainer")) {
+                $(ev.target).removeClass("ControlContainer");
+            }
+        } else {
+            $(ev.target).append($(moveInput));
+            $(ev.target).append($(moveSpan));
+            if ($("#" + ElementId.replace("span", "div")).hasClass("ControlContainer")) {
+                $("#" + ElementId.replace("span", "div")).removeClass("ControlContainer");
+            }
+        }
+
+
+
+    }
+
+    //当拖曳元素进入目标元素的时候触发的事件
+    function dragEnter(ev) {
+        console.dir(ev.target.id);
+        if (!$(ev.target).hasClass("ControlContainer")) {
+            $(ev.target).addClass("ControlContainer");
+        }
+
+    }
+    //当拖拽完成后触发的事件
+    function dragEnd(ev) {
+        if ($(ev.target).parent().hasClass("ControlContainer")) {
+            $(ev.target).parent().removeClass("ControlContainer");
+        }
+
+    }
+
+    //当被鼠标拖动的对象离开其容器范围内时触发此事件
+    function dragLeave(ev) {
+        console.dir(ev.target.id);
+        if ($(ev.target).hasClass("ControlContainer")) {
+            $(ev.target).removeClass("ControlContainer");
+        }
+    }
+
+
+    //获取鼠标位置
+    function GetMouse(event) {
+
+        var e = event || window.event;
+        return {
+            x: document.documentElement.scrollLeft + e.clientX,
+            y: document.documentElement.scrollTop + e.clientY
+        };
+    }
+
+
+    //主表鼠标右键点击事件
+    function onContextMenu(ele, ev) {
+        var position = GetMouse(event);
+        $("#RightMouseDiv").css("display", "block");
+        $(".RightMouseOtherDiv").height(document.body.clientHeight + "px");
+        $(".RightMouseClick").css("position", "absolute").css("left", position.x + "px").css("top", position.y + "px");
+        activeElement = $(ele);
+        ev.preventDefault();
+    }
+    //子表鼠标右键点击事件
+    function onChildContextMenu(ele, ev) {
+        var position = GetMouse(event);
+        $("#ChildRightMouseDiv").css("display", "block");
+        $(".RightMouseOtherDiv").height(document.body.clientHeight + "px");
+        $(".ChildRightMouseClick").css("position", "absolute").css("left", position.x + "px").css("top", position.y + "px");
+        activeElement = $(ele);
+        ev.preventDefault();
+    }
+
+    //关闭右键菜单
+    function CloseMenu() {
+        $("#RightMouseDiv").css("display", "none");
+        $("#ChildRightMouseDiv").css("display", "none");
+    }
+
+    //删除单元格
+    function deleteCell() {
+        $(activeElement).remove();
+        CloseMenu();
+    }
+    //删除该行
+    function deleteRow() {
+        $(activeElement).parent().remove();
+        CloseMenu();
+    }
+
+    function addRow() {
+        $.ligerDialog.open({
+            height: 266,
+            width: 500,
+            title: '插入行',
+            // url: '/Home/AddRowConfig',
+            target: $(".AddRowConfig"),
+            id: 'AddRowConfig_Dialog',
+            showMax: false,
+            showToggle: true,
+            isHidden: true,
+            showMin: false,
+            isResize: true,
+            slide: false,
+            data: {
+                name: "123"
+            },
+            //自定义参数
+            myDataName: "456",
+            //弹出框关闭前事件
+            onClose: function () {
+                // console.dir($("#" + $("#AddRowConfig").find("iframe").attr("id")));
+            },
+            buttons: [{
+                text: '确定',
+                data: [],
+                onclick: function (item, dialog) {
+
+                    var currRows = parseInt($(".mainFormData:last").attr("rows"));
+                    var column = parseInt($("#selColumns").val());
+                    var colWidthArr = [];
+                    for (var i = 0; i < column; i++) {
+                        colWidthArr.push(parseInt($("#colWidth_Text" + parseInt(i + 1)).val()));
+                    }
+
+                    if (isNaN(currRows) || currRows == undefined) {
+                        currRows = 0;
+                    }
+
+                    $("#main-form").AddRow(currRows, column, colWidthArr);
+                    //console.dir(dialog);
+                    dialog.close();
+                }
+            }, {
+                text: '取消'
+                , onclick: function (item, dialog) {
+                    console.dir(item);
+                    dialog.close();
+                }
+            }]
+        });
+    }
+
+    //导入表单
+    function InputForm() {
+        $.ligerDialog.open({
+            height: 266,
+            width: 500,
+            title: '导入表单',
+            target: $(".InputForm"),
+            id: 'InputForm_Dialog',
+            showMax: false,
+            showToggle: true,
+            isHidden: true,
+            showMin: false,
+            isResize: true,
+            slide: false,
+            buttons: [{
+                text: '确定',
+                data: [],
+                onclick: function (item, dialog) {
+
+                    var ProcessData = new Object();
+                    ProcessData.ObjectId = $("#ObjectId").val();
+                    ProcessData.ProcessCode = $.GetLocationParams("WorkFlowCode");//流程编码
+                    ProcessData.ProcessName = decodeURI($.GetLocationParams("WorkFlowName"));//流程名称
+                    var InputFormCode = $("#InputFormCode").val();
+                    if (InputFormCode != "") {
+                        $.AJAXGetData("Post", "/Process/InputForm", { ObjectId: ProcessData.ObjectId, ProcessCode: ProcessData.ProcessCode, ProcessName: ProcessData.ProcessName, InputFormCode: InputFormCode }, function (data) {
+                            if (data.States) {
+                                alert("成功");
+                                location.reload();
+                            } else {
+                                alert("失败");
+                            }
+                        });
+                    }
+
+
+                    dialog.close();
+                }
+            }, {
+                text: '取消'
+        , onclick: function (item, dialog) {
+            dialog.close();
+        }
+            }]
+        });
+    }
+
+    //子表插入列
+    function addColumn(element) {
+
+        var newColumnName = "请填写字段名称";
+        var newColumnContent = "请填写字段要求";
+        var tableHeader = '<th class="fixdInfo" fieldAttr="add" style="border:1px dashed #B6ACAC"><input class="field-input" type="text" name="name" value="' + newColumnName + '" /><span class="field-span" style="width:120px">' + newColumnName + '</span></th>';
+        var tableBody = '<td class="fixdInfo" fieldAttr="add" style="border:1px dashed #B6ACAC"><input class="field-input" type="text" name="name" value="' + newColumnContent + '" /><span class="field-span" style="width:120px">' + newColumnContent + '</span></td>';
+        $(element).parent().parent().find(".table-header").append(tableHeader);
+        $(element).parent().parent().find(".table-body").append(tableBody);
+
+    }
+
+    function addChildForm(formName) {
+        $.ligerDialog.open({
+            height: 166,
+            width: 500,
+            title: '插入列',
+            // url: '/Home/AddRowConfig',
+            target: $(".AddChildFormConfig"),
+            id: 'AddChildFormConfig_Dialog',
+            showMax: false,
+            showToggle: true,
+            isHidden: true,
+            showMin: false,
+            isResize: true,
+            slide: false,
+            //弹出框关闭前事件
+            onClose: function () {
+                // console.dir($("#" + $("#AddRowConfig").find("iframe").attr("id")));
+            },
+            buttons: [{
+                text: '确定',
+                data: [],
+                onclick: function (item, dialog) {
+                    var ChildFormName = $("#ChildFormName").val();
+                    var insertHtml = '<div class="childForm">';
+                    insertHtml += '<div class="row" style="border: 1px dashed #B6ACAC;height: 38px;padding: 0 9px !important;background: #e9e9e9;color: #39292c;font-size: 16px;padding-left: 10px;color: #39292c; line-height:38px;">';
+                    insertHtml += '<span class="child-title">' + ChildFormName + '</span>';
+                    insertHtml += '<span class="glyphicon glyphicon-minus" style="float:right;line-height:38px;color:cornflowerblue;cursor:pointer;margin-right:5px;" aria-hidden="true" id="minus-column" title="删除子表"></span>';
+                    insertHtml += '<span class="glyphicon glyphicon-plus" style="float:right;line-height:38px;color:cornflowerblue;cursor:pointer;margin-right:5px;" aria-hidden="true" id="add-column" title="增加一列"></span>';
+                    insertHtml += '</div>';
+                    insertHtml += '<div class="row" style="width:100%;overflow-x:scroll;">';
+                    insertHtml += '<table class="table table-bordered" style="width:auto;border:0;">';
+                    insertHtml += '<tr class="table-header"  style="border:1px dashed #B6ACAC">';
+                    insertHtml += '<th  oncontextmenu="onChildContextMenu(this,event)"  style="border:1px dashed #B6ACAC" class="fixdInfo ">'; insertHtml += '<input class="field-input" type="text" name="name" value="" />';
+                    insertHtml += '<span class="field-span" style="width:120px">请填写字段名称</span>';
+                    insertHtml += '</th>';
+                    insertHtml += '</tr>';
+                    insertHtml += '<tr class="table-body"  style="border:1px dashed #B6ACAC">';
+                    insertHtml += '<td class="fixdInfo "  style="border:1px dashed #B6ACAC" oncontextmenu="onChildContextMenu(this,event)">';
+                    insertHtml += '<input class="field-input" type="text" name="name" value="" />';
+                    insertHtml += '<span class="field-span">请填写字段要求</span>';
+                    insertHtml += '</td>';
+                    insertHtml += '</tr>';
+                    insertHtml += '</table>';
+                    insertHtml += '</div>';
+                    insertHtml += '</div>';
+                    $("#child-form").append(insertHtml);
+                    dialog.close();
+                }
+            }, {
+                text: '取消'
+                , onclick: function (item, dialog) {
+                    console.dir(item);
+                    dialog.close();
+                }
+            }]
+        });
+    }
+    //业务管控点
+    function ProcessAttr(btnName, title) {
+        $.ligerDialog.open({
+            height: 566,
+            width: 500,
+            title: title,
+            // url: '/Home/AddRowConfig',
+            target: $("." + btnName),
+            id: btnName + '_Dialog',
+            showMax: false,
+            showToggle: true,
+            isHidden: true,
+            showMin: false,
+            isResize: true,
+            slide: false,
+            //弹出框关闭前事件
+            onClose: function () {
+                // console.dir($("#" + $("#AddRowConfig").find("iframe").attr("id")));
+            }
+        });
+    }
+
+    //保存表单数据
+    function saveFormData(type) {
+        //----------主表数据----------//
+        var mainFormData = new Array();
+
+        $("#main-form").find(".mainFormData").each(function (key, ele) {
+
+            var mainRowData = new Object();
+
+            mainRowData.Row = $(ele).attr("rows");
+
+            var RowArray = new Array();
+
+            //获得字段的值和状态
+            $(ele).find("div").each(function (rowKey, rowVal) {
+                var RowData = new Object();
+                RowData.Sort = rowKey;
+                RowData.ColWidth = $(rowVal).attr("colwidth");
+                RowData.Content = $(rowVal).find("input").val();
+                if (type == "保存") {
+                    if ($(rowVal).hasClass("isAdd")) {
+                        RowData.isAdd = true;
+                    } else {
+                        if ($(rowVal).hasClass("isChange")) {
+                            RowData.isChange = true;
+                        } else {
+                            var oldRowValue = _.find(tableModel.MainFormData, function (data) {
+                                return data.Row == mainRowData.Row;
+                            });
+                            if (oldRowValue == null) {
+                                RowData.isAdd = true;
+                            } else {
+                                if (_.where(oldRowValue.RowArray, RowData).length <= 0) {
+                                    RowData.isChange = true;
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                RowArray.push(RowData);
+            });
+
+            mainRowData.RowArray = RowArray;
+
+            mainFormData.push(mainRowData);
+
+        });
+        //修正数据row号
+        $.each(mainFormData, function (key, val) {
+            val.Row = key + 1;
+        });
+
+        //----------主表数据----------//
+        //----------子表数据----------//
+        var childFormData = new Array();
+        $("#child-form").find(".childForm").each(function (key, ele) {
+
+            var childTableData = new Object();
+
+            childTableData.Sort = key;
+            childTableData.TableName = $(ele).find(".child-title").html();
+
+            var ThArray = new Array();
+
+            $(ele).find("th").each(function (thKey, thVal) {
+                var ThData = new Object();
+                ThData.Sort = thKey;
+                ThData.Content = $(thVal).find("input").val();
+                if (type == "保存") {
+                    if ($(thVal).hasClass("isAdd")) {
+                        ThData.isAdd = true;
+                    } else {
+                        if ($(thVal).hasClass("isChange")) {
+                            ThData.isChange = true;
+                        } else {
+                            var oldChildData = _.find(tableModel.ChildFormData, function (data) {
+                                return data.TableName == childTableData.TableName;
+                            });
+                            if (oldChildData == null) {
+                                ThData.isAdd = true;
+                            } else {
+                                if (_.where(oldChildData.ThArray, ThData).length <= 0) {
+                                    if (ThData.Sort + 1 > oldChildData.ThArray.length) {
+                                        ThData.isAdd = true;
+                                    } else {
+                                        ThData.isChange = true;
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+
+                ThArray.push(ThData);
+            });
+
+            var TdArray = new Array();
+
+            $(ele).find("td").each(function (tdKey, tdVal) {
+                var TdData = new Object();
+                TdData.Sort = tdKey;
+                TdData.Content = $(tdVal).find("input").val();
+
+                if (type == "保存") {
+                    if ($(tdVal).hasClass("isAdd")) {
+                        TdData.isAdd = true;
+                    } else {
+                        if ($(tdVal).hasClass("isChange")) {
+                            TdData.isChange = true;
+                        } else {
+                            var oldChildData = _.find(tableModel.ChildFormData, function (data) {
+                                return data.TableName == childTableData.TableName;
+                            });
+                            console.dir(oldChildData);
+                            if (oldChildData == null) {
+                                TdData.isAdd = true;
+                            } else {
+                                if (_.where(oldChildData.TdArray, TdData).length <= 0) {
+                                    if (TdData.Sort + 1 > oldChildData.TdArray.length) {
+                                        TdData.isAdd = true;
+                                    } else {
+                                        TdData.isChange = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                TdArray.push(TdData);
+            });
+
+            childTableData.ThArray = ThArray;
+            childTableData.TdArray = TdArray;
+
+            childFormData.push(childTableData);
+
+        });
+        //----------子表数据----------//
+        //----------流程数据----------//
+        var ProcessData = new Object();
+        ProcessData.ObjectId = $("#ObjectId").val();
+        ProcessData.Title = $("#Title").val();//流程标题
+        ProcessData.ProcessCode = $.GetLocationParams("WorkFlowCode");//流程编码
+        ProcessData.ProcessName = decodeURI($.GetLocationParams("WorkFlowName"));//流程名称
+        ProcessData.MainFormData = JSON.stringify(mainFormData);//主表数据
+        ProcessData.ChildFormData = JSON.stringify(childFormData);//子表数据
+        ProcessData.ServiceControl = $("#ServiceControl").val();
+        ProcessData.Explain = $("#Explain").val();
+        ProcessData.AutorityControl = $("#AutorityControl").val();
+        //----------流程数据----------//
+
+
+        $.AJAXGetData("Post", "/Process/EditProcessTableModel", ProcessData, function (data) {
+            if (data.States) {
+                alert("成功");
+                location.reload();
+            } else {
+                alert("失败");
+            }
+        });
+    }
+    //原表单数据model
+    var tableModel = new Object();
+    $(function () {
+        //$.Init();
+        //$.Add();
+
+
+        if ($("#MainFormData").val() != "") {
+            tableModel.MainFormData = JSON.parse($("#MainFormData").val());
+        }
+        if ($("#ChildFormData").val()!="") {
+            tableModel.ChildFormData = JSON.parse($("#ChildFormData").val());
+        }
+
+        console.dir(tableModel);
+
+        //导入表单
+        $(document).on("click", "#input-form-data", function () {
+            InputForm();
+        });
+
+        //保存数据
+        $(document).on("click", "#save-form-data", function () {
+            saveFormData("保存");
+        });
+
+        //不保存数据
+        $(document).on("click", "#dont-save", function () {
+            window.location.reload();
+        });
+
+        //发布数据
+        $(document).on("click", "#publish-form-data", function () {
+            saveFormData("发布");
+        });
+
+        //业务管控点
+        $(document).on("click", "#service-control", function () {
+            ProcessAttr("ServiceControlConfig", "业务管控点");
+        });
+        //流程说明
+        $(document).on("click", "#process-explain", function () {
+            ProcessAttr("ExplainConfig", "流程说明");
+        });
+        //权限管控
+        $(document).on("click", "#autority-control", function () {
+            ProcessAttr("AutorityControlConfig", "权限管控");
+        });
+
+        //业务管控点编辑按钮
+        $(document).on("click", "#ServiceControlEdit", function () {
+            $("#ServiceControlBtn").css("display", "block");
+        });
+        //业务管控点保存按钮
+        $(document).on("click", "#ServiceControlBtn", function () {
+            var ProcessData = new Object();
+            ProcessData.ObjectId = $("#ObjectId").val();
+            ProcessData.ServiceControl = $("#ServiceControl").val();
+            $.AJAXGetData("Post", "/Process/EditProcessAttr", ProcessData, function (data) {
+                if (data.States) {
+                    alert("成功");
+                    $("#ServiceControlBtn").css("display", "none");
+                } else {
+                    alert("失败");
+                }
+            });
+
+        });
+
+        //流程说明编辑按钮
+        $(document).on("click", "#ExplainEdit", function () {
+            $("#ExplainBtn").css("display", "block");
+        });
+        //流程说明保存按钮
+        $(document).on("click", "#ExplainBtn", function () {
+            var ProcessData = new Object();
+            ProcessData.ObjectId = $("#ObjectId").val();
+            ProcessData.Explain = $("#Explain").val();
+            $.AJAXGetData("Post", "/Process/EditProcessAttr", ProcessData, function (data) {
+                if (data.States) {
+                    alert("成功");
+                    $("#ExplainBtn").css("display", "none");
+                } else {
+                    alert("失败");
+                }
+            });
+
+        });
+
+
+        //权限管控编辑按钮
+        $(document).on("click", "#AutorityControlEdit", function () {
+            $("#AutorityControlBtn").css("display", "block");
+        });
+        //权限管控保存按钮
+        $(document).on("click", "#AutorityControlBtn", function () {
+            var ProcessData = new Object();
+            ProcessData.ObjectId = $("#ObjectId").val();
+            ProcessData.AutorityControl = $("#AutorityControl").val();
+            $.AJAXGetData("Post", "/Process/EditProcessAttr", ProcessData, function (data) {
+                if (data.States) {
+                    alert("成功");
+                    $("#AutorityControlBtn").css("display", "none");
+                } else {
+                    alert("失败");
+                }
+            });
+
+        });
+
+
+        //添加子表
+        $(document).on("click", "#add-child-form", function () {
+            addChildForm();
+        });
+
+        //增加一行
+        $(document).on("click", "#add-row", function () {
+            addRow();
+        });
+
+        //增加一列
+        $(document).on("click", "#add-column", function () {
+            var add_column_element = $(this);
+            addColumn(add_column_element);
+        });
+
+        //删除子表
+        $(document).on("click", "#minus-column", function () {
+            $(this).parent().parent().remove();
+        });
+
+        //单元格聚焦事件
+        $(document).on("click", ".field-span", function () {
+            $(this).css("display", "none").parent().find(".field-input").css("display", "block");
+            var input = $(this).parent().find(".field-input");
+            var value = $(this).html();
+            $(input).focus().val(value);
+        });
+        //单元格离焦事件
+        $(document).on("blur", ".field-input", function () {
+            var value = $(this).val();
+            if (value != "") {
+                $(this).css("display", "none").parent().find(".field-span").css("display", "block").html(value);
+                AdjustRowHeight($(this));
+            }
+        });
+
+        //调整该行高度
+        function AdjustRowHeight(input) {
+            var div = $(input).parent().parent();
+            var maxHeight = 0;
+            $(div).find("div").each(function (key, val) {
+                if (maxHeight < $(val).find(".field-span").height()) {
+                    maxHeight = $(val).find(".field-span").height();
+                }
+            });
+
+            $(div).find("div").each(function (key, val) {
+                $(val).height(maxHeight + 5);
+            });
+        }
+
+        //选择增加行数变化事件
+        $(document).on("change", "#selColumns", function () {
+            $("#divColumns").empty();
+            var rows = $(this).val();
+            var InputHtml = "";
+
+            switch (rows) {
+                case "1":
+                    InputHtml += '<input type="text" id="colWidth_Text1" class="NewColumn" value="12" maxlength="2" style="width: 20px;">';
+                    break;
+                case "2":
+                    InputHtml += '<input type="text" id="colWidth_Text1" class="NewColumn" value="6" maxlength="2" style="width: 20px;">';
+                    InputHtml += '<input type="text" id="colWidth_Text2" class="NewColumn" value="6" maxlength="2" style="width: 20px;">';
+                    break;
+                case "4":
+                    InputHtml += '<input type="text" id="colWidth_Text1" class="NewColumn" value="2" maxlength="2" style="width: 20px;">';
+                    InputHtml += '<input type="text" id="colWidth_Text2" class="NewColumn" value="4" maxlength="2" style="width: 20px;">';
+                    InputHtml += '<input type="text" id="colWidth_Text3" class="NewColumn" value="2" maxlength="2" style="width: 20px;">';
+                    InputHtml += '<input type="text" id="colWidth_Text4" class="NewColumn" value="4" maxlength="2" style="width: 20px;">';
+                    break;
+                case "6":
+                    InputHtml += '<input type="text" id="colWidth_Text1" class="NewColumn" value="2" maxlength="2" style="width: 20px;">';
+                    InputHtml += '<input type="text" id="colWidth_Text2" class="NewColumn" value="2" maxlength="2" style="width: 20px;">';
+                    InputHtml += '<input type="text" id="colWidth_Text3" class="NewColumn" value="2" maxlength="2" style="width: 20px;">';
+                    InputHtml += '<input type="text" id="colWidth_Text4" class="NewColumn" value="2" maxlength="2" style="width: 20px;">';
+                    InputHtml += '<input type="text" id="colWidth_Text5" class="NewColumn" value="2" maxlength="2" style="width: 20px;">';
+                    InputHtml += '<input type="text" id="colWidth_Text6" class="NewColumn" value="2" maxlength="2" style="width: 20px;">';
+                    break;
+                default:
+                    for (var i = 0; i < rows; i++) {
+                        var currRow = i + 1;
+                        InputHtml += '<input type="text" id="colWidth_Text' + currRow + '" class="NewColumn" value="1" maxlength="2" style="width: 20px;">';
+                    }
+                    break;
+
+            }
+
+            //console.dir(InputHtml);
+            $("#divColumns").append(InputHtml);
+        });
+
+        //加载完成后执行
+        LoadedEvent();
+
+
+        //$('#form-explain').attr("data-template", "");
+
+
+        $('#form-explain').popover({
+            trigger: 'toggle', //触发方式
+            //template: "", //你自定义的模板
+            title: "操作说明",//设置 弹出框 的标题
+            html: true, // 为true的话，data-content里就能放html代码了
+            content: "<div style='font-weight:900;color:red;'>注：设计您想要的表单。直接点击字段进行修改。右键可删除字段。避免保存失败，添加字段后可多多点击保存按钮。</div>" + "<div>导入表单：填写与之相似表单的流程编码可复制表单。</div>" + "<div>1、点击业务信息栏右边加号进行业务字段添加。</div>" + "<div>2、如有重复列表展示须点击“添加子表”进行子表列字段添加。</div>" + "<div>3、特殊的业务逻辑填入“业务管控点”中。</div>" + "<div>4、关于流程的说明请填入“流程说明”。</div>" + "<div> 5、流程的发起或监控权限请填入“权限控制”。</div>",//这里可以直接写字符串，也可以 是一个函数，该函数返回一个字符串；
+        });
+
+
+
+    });
+
+
+    function LoadedEvent() {
+
+        if ($("#ObjectId").val() != "") {
+
+
+            var MainFormData = JSON.parse($("#MainFormData").val());
+
+            var ChildFormData = JSON.parse($("#ChildFormData").val());
+
+            if (MainFormData.length > 0) {
+
+                for (var i = 0; i < MainFormData.length; i++) {
+                    //var currRows = MainFormData[i]["Row"];
+                    var currRows = i + 1;
+                    var appendHtml = "";
+                    appendHtml += '<div class="row mainFormData" Rows="' + currRows + '"  style="min-height: 33px;">';
+
+                    for (var j = 0; j < MainFormData[i]["RowArray"].length; j++) {
+
+                        var ColWidth = MainFormData[i]["RowArray"][j]["ColWidth"];
+                        var Content = MainFormData[i]["RowArray"][j]["Content"];
+
+                        if (Content == "") {
+                            Content = "请填写内容";
+                        }
+
+
+                        var isAdd = MainFormData[i]["RowArray"][j]["isAdd"] == true ? "isAdd" : "";
+                        var isChange = MainFormData[i]["RowArray"][j]["isChange"] == true ? "isChange" : "";
+                        var spanClass = "InfoName";
+                        if (j % 2 > 0) {
+                            spanClass = "InfoValue";
+                        }
+                        appendHtml += '<div id="div_' + currRows + '_' + parseInt(j + 1) + '" ondragover="allowDrop(event)"   ondrop="drop(event)"  colWidth="' + ColWidth + '"  class="col-md-' + ColWidth + ' fixdInfo field-div  ' + isAdd + ' ' + isChange + ' ' + spanClass + '"    oncontextmenu="onContextMenu(this,event)">';
+                        appendHtml += '<input id="input_' + currRows + '_' + parseInt(j + 1) + '" class="field-input" type="text"  value="' + Content + '"  />';
+
+
+
+                        appendHtml += '<span class="field-span ' + spanClass + '" id="span_' + currRows + '_' + parseInt(j + 1) + '"  ondragenter="dragEnter(event)"   ondragend="dragEnd(event)" ondragleave="dragLeave(event)" ondragstart="dragBegin(event)"  draggable="true" >' + Content + '</span>';
+                        appendHtml += '</div>';
+                    }
+                    appendHtml += "</div>";
+                    $("#main-form").append(appendHtml);
+                }
+            }
+
+            if (ChildFormData.length > 0) {
+
+
+                for (var i = 0; i < ChildFormData.length; i++) {
+
+
+                    var insertHtml = '<div class="childForm">';
+                    insertHtml += '<div class="row" style="border: 1px solid #e0e0e0;height: 38px;padding: 0 9px !important;background: #e9e9e9;color: #39292c;font-size: 16px;padding-left: 10px;color: #39292c; line-height:38px;">';
+                    insertHtml += '<span class="child-title">' + ChildFormData[i]["TableName"] + '</span>';
+                    insertHtml += '<span class="glyphicon glyphicon-minus" style="float:right;line-height:38px;color:cornflowerblue;cursor:pointer;margin-right:5px;" aria-hidden="true" id="minus-column" title="删除子表"></span>';
+                    insertHtml += '<span class="glyphicon glyphicon-plus" style="float:right;line-height:38px;color:cornflowerblue;cursor:pointer;margin-right:5px;" aria-hidden="true" id="add-column" title="增加一列"></span>';
+                    insertHtml += '</div>';
+                    insertHtml += '<div class="row" style="width:100%;overflow-x:scroll;">';
+                    insertHtml += '<table class="table table-bordered" style="width:auto; border:0;">';
+                    insertHtml += '<tr class="table-header"  style="border:1px dashed #B6ACAC">';
+                    for (var j = 0; j < ChildFormData[i]["ThArray"].length; j++) {
+                        var thContent = ChildFormData[i]["ThArray"][j]["Content"];
+
+                        var isAdd = ChildFormData[i]["ThArray"][j]["isAdd"] == true ? "isAdd" : "";
+                        var isChange = ChildFormData[i]["ThArray"][j]["isChange"] == true ? "isChange" : "";
+
+                        if (thContent == "") {
+                            thContent = "请填写字段名称";
+                        }
+                        insertHtml += '<th class="fixdInfo  ' + isAdd + ' ' + isChange + '"';
+                        if (ChildFormData[i]["ThArray"][j]["isChange"] == true) {
+                            insertHtml += ' style="border:2px dashed #ffd800" ';
+                        }
+                        else if (ChildFormData[i]["ThArray"][j]["isAdd"] == true) {
+                            insertHtml += ' style="border:2px dashed #ff0000" ';
+                        } else {
+                            insertHtml += ' style="border:1px dashed #B6ACAC" ';
+                        }
+
+                        insertHtml += ' oncontextmenu="onChildContextMenu(this,event)"><input class="field-input" type="text" name="name" value="' + thContent + '" /><span class="field-span" style="width:120px">' + thContent + '</span></th>';
+                    }
+                    insertHtml += '</tr>';
+                    insertHtml += '<tr class="table-body"  style="border:1px dashed #B6ACAC">';
+                    for (var j = 0; j < ChildFormData[i]["TdArray"].length; j++) {
+                        var tdContent = ChildFormData[i]["TdArray"][j]["Content"];
+                        var isAdd = ChildFormData[i]["TdArray"][j]["isAdd"] == true ? "isAdd" : "";
+                        var isChange = ChildFormData[i]["TdArray"][j]["isChange"] == true ? "isChange" : "";
+                        if (tdContent == "") {
+                            tdContent = "请填写字段名称";
+                        }
+                        insertHtml += '<td class="fixdInfo ' + isAdd + ' ' + isChange + '"';
+
+                        if (ChildFormData[i]["TdArray"][j]["isChange"] == true) {
+                            insertHtml += ' style="border:2px dashed #ffd800" ';
+                        }
+                        else if (ChildFormData[i]["TdArray"][j]["isAdd"] == true) {
+                            insertHtml += ' style="border:2px dashed #ff0000" ';
+                        } else {
+                            insertHtml += ' style="border:1px dashed #B6ACAC" ';
+                        }
+                        insertHtml += ' oncontextmenu="onChildContextMenu(this,event)"><input class="field-input" type="text" name="name" value="' + tdContent + '" /><span class="field-span" style="width:120px">' + tdContent + '</span></td>';
+                    }
+
+                    insertHtml += '</tr></table></div></div>';
+
+                    $("#child-form").append(insertHtml);
+
+                }
+            }
+        }
+
+    }
+</script>
+<!--增加行form-->
+<div id="AddRowConfig" class="AddRowConfig" style="padding: 20px; display: none;">
+    <table style="width: 100%; height: 100%; border: 0px solid #cccccc;">
+        <tbody>
+            <tr>
+                <td style="width: 20%; height: 50px; font-weight: bold;">单元格数</td>
+                <td>
+                    <select id="selColumns" style="width: 120px">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4" selected="selected">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td style="width: 20%; height: 50px; font-weight: bold;">每列所占宽度</td>
+                <td id="divColumns">
+                    <input type="text" id="colWidth_Text1" class="NewColumn" value="2" maxlength="2" style="width: 20px;">
+                    <input type="text" id="colWidth_Text2" class="NewColumn" value="4" maxlength="2" style="width: 20px;">
+                    <input type="text" id="colWidth_Text3" class="NewColumn" value="2" maxlength="2" style="width: 20px;">
+                    <input type="text" id="colWidth_Text4" class="NewColumn" value="4" maxlength="2" style="width: 20px;">
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 20%; height: 50px;"></td>
+                <td>注：所有列之和必须等于12.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!--增加行form-->
+<!--增加列form-->
+<div id="AddColumnConfig" class="AddColumnConfig" style="padding: 20px; display: none;">
+    <table style="width: 100%; height: 100%; border: 0px solid #cccccc;">
+        <tbody>
+            <tr>
+                <td style="width: 20%; height: 50px; font-weight: bold;">列名</td>
+                <td>
+                    <input type="text" id="newColumnName" value="" style="width: 220px;">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <td style="width: 20%; height: 50px; font-weight: bold;">内容</td>
+                <td>
+                    <input type="text" id="newColumnContent" value="" style="width:220px;">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!--增加列form-->
+<!--增加子表单form-->
+<div id="AddChildFormConfig" class="AddChildFormConfig" style="padding: 20px; display: none;">
+    <table style="width: 100%; height: 100%; border: 0px solid #cccccc;">
+        <tbody>
+            <tr>
+                <td style="width: 20%; height: 50px; font-weight: bold;">子表名称</td>
+                <td>
+                    <input type="text" id="ChildFormName" value="" style="width: 220px;">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!--增加子表单form-->
+<!--业务管控点-->
+<div id="ServiceControlConfig" class="ServiceControlConfig" style="padding: 20px; display: none;">
+
+    <span id="ServiceControlEdit" class="EditBtn" style="font-size:18px;position:absolute;top:10px;right:25px;cursor:pointer">
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+        <span class="glyphicon-class">编辑</span>
+    </span>
+
+    <div class="row" style="margin-top:15px;">
+        <textarea id="ServiceControl" class="form-control" style="width:100%;height:420px;border:0;" placeholder="请填写...">@Model.ServiceControl</textarea>
+    </div>
+    <div class="row">
+        <a class="btn btn-default" id="ServiceControlBtn" style="float:right;margin-right:5px;display:none;">保存</a>
+    </div>
+</div>
+<!--业务管控点-->
+<!--流程说明-->
+<div id="ExplainConfig" class="ExplainConfig" style="padding: 20px; display: none;">
+
+    <span id="ExplainEdit" class="EditBtn" style="font-size:18px;position:absolute;top:10px;right:25px;cursor:pointer">
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+        <span class="glyphicon-class">编辑</span>
+    </span>
+
+    <div class="row" style="margin-top:15px;">
+        <textarea id="Explain" class="form-control" style="width:100%;height:420px;border:0;" placeholder="请填写...">@Model.Explain</textarea>
+    </div>
+    <div class="row">
+        <a class="btn btn-default" id="ExplainBtn" style="float:right;margin-right:5px;display:none;">保存</a>
+    </div>
+</div>
+<!--流程说明-->
+<!--权限管控-->
+<div id="AutorityControlConfig" class="AutorityControlConfig" style="padding: 20px; display: none;">
+
+    <span id="AutorityControlEdit" class="EditBtn" style="font-size:18px;position:absolute;top:10px;right:25px;cursor:pointer">
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+        <span class="glyphicon-class">编辑</span>
+    </span>
+
+    <div class="row" style="margin-top:15px;">
+        <textarea id="AutorityControl" class="form-control" style="width:100%;height:420px;border:0;" placeholder="请填写...">@Model.AutorityControl</textarea>
+    </div>
+    <div class="row">
+
+        <a class="btn btn-default" id="AutorityControlBtn" style="float:right;margin-right:5px;display:none;">保存</a>
+
+
+    </div>
+</div>
+<!--权限管控-->
+<!--导入表单form-->
+<div id="InputForm" class="InputForm" style="padding: 20px; display: none;">
+    <table style="width: 100%; height: 100%; border: 0px solid #cccccc;">
+        <tbody>
+            <tr>
+                <td style="width: 20%; height: 50px; font-weight: bold;">所要导入的表单编码</td>
+                <td>
+                    <input type="text" id="InputFormCode" value="" style="width: 220px;">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!--导入表单form-->
+
+
+<nav id="topToolBar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <!--<ul class="nav navbar-nav navbar-form">
+                <li><a class="btn btn-default" href="#">增加条件</a></li>
+            </ul>-->
+            <form class="navbar-form navbar-left">
+
+                <a id="form-explain" tabindex="0" class="btn btn-info" role="button" data-toggle="popover" data-trigger="focus">操作说明</a>
+                <a class="btn btn-primary" id="input-form-data">导入表单</a>
+                <a class="btn btn-default" id="add-child-form">增加子表</a>
+                <a class="btn btn-default" id="service-control">业务管控点</a>
+                <a class="btn btn-default" id="process-explain">流程说明</a>
+                <a class="btn btn-default" id="autority-control">权限管控</a>
+            </form>
+            <form class="navbar-form navbar-right">
+                <a class="btn btn-default" id="dont-save">不保存</a>
+                @if (CommonTool.AuthorityHelper.GetButtonAuthority((int)DapperMvc.Enum.AuthorityType.编辑, string.Format("/{0}/{1}", Request.RequestContext.RouteData.Values["controller"] + string.Empty, Request.RequestContext.RouteData.Values["action"] + string.Empty), "save"))
+                {
+                    <a class="btn btn-default" id="save-form-data">保存</a>
+                }
+                @if (CommonTool.AuthorityHelper.GetButtonAuthority((int)DapperMvc.Enum.AuthorityType.编辑, string.Format("/{0}/{1}", Request.RequestContext.RouteData.Values["controller"] + string.Empty, Request.RequestContext.RouteData.Values["action"] + string.Empty), "publish"))
+                {
+                    <a class="btn btn-default" id="publish-form-data">发布</a>
+                }
+            </form>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+@*<nav class="nav">
+        <input type="checkbox" class="nav__cb" id="menu-cb" />
+        <div class="nav__content">
+            <ul class="nav__items">
+                <li class="nav__item"> <span class="nav__item-text"> Home </span> </li>
+                <li class="nav__item"> <span class="nav__item-text"> Works </span> </li>
+                <li class="nav__item"> <span class="nav__item-text"> About </span> </li>
+                <li class="nav__item"> <span class="nav__item-text"> Contact </span> </li>
+            </ul>
+        </div>
+        <label class="nav__btn" for="menu-cb"></label>
+    </nav>*@
+
+<div class="container" style="margin-top:80px;">
+
+    <input type="hidden" name="name" id="ObjectId" value="@Model.ObjectId" />
+    <input type="hidden" name="name" id="MainFormData" value="@Model.MainFormData" />
+    <input type="hidden" name="name" id="ChildFormData" value="@Model.ChildFormData" />
+    <div class="row">
+        <div id="rowContainer" class="col-md-10 col-md-offset-1" style=" background-color: #fff">
+            <div class="row">
+                <div>
+                    <img src="~/Contents/Img/timeschinalogo.jpg" />
+                </div>
+            </div>
+            <div class="row" style="color: Black;font-size: 22px; text-align:center;">
+                <span>@(ViewData["processName"])</span>
+            </div>
+            <div class="row">
+                <span style="float:right;margin:10px;">流水号</span>
+            </div>
+            <div class="row" style="border: 1px solid #e0e0e0;height: 38px;padding: 0 9px !important;background: #e9e9e9;color: #39292c;font-size: 16px;padding-left: 10px;color: #39292c; line-height:38px;">
+                <span>基本信息</span>
+            </div>
+            <div class="row" style="min-height: 33px;">
+                <div id="div4" class="col-md-2 fixdInfo field-div InfoName">
+                    <span class="InfoName">标题</span>
+                </div>
+                <div id="div5" class="col-md-10 fixdInfo field-div">
+                    <input class="field-input" type="text" name="name" id="Title" value="@Model.Title" />
+                    @if (Model.Title == "" || string.IsNullOrEmpty(Model.Title))
+                    {
+                        <span class="field-span">请填写标题要求</span>
+                    }
+                    else
+                    {
+                        <span class="field-span">@Model.Title</span>
+                    }
+
+                </div>
+            </div>
+            <div class="row" style="min-height: 33px;">
+                <div id="div6" class="col-md-2 fixdInfo field-div InfoName">
+                    <span class="InfoName">申请人</span>
+                </div>
+                <div id="div7" class="col-md-4 fixdInfo field-div">
+                    <span>自动带出</span>
+                </div>
+                <div id="div6" class="col-md-2 fixdInfo field-div InfoName">
+                    <span class="InfoName">申请日期</span>
+                </div>
+                <div id="div7" class="col-md-4 fixdInfo field-div">
+                    <span>自动带出</span>
+                </div>
+            </div>
+            <div class="row" style="min-height: 33px;">
+                <div id="div6" class="col-md-2 fixdInfo field-div InfoName">
+                    <span class="InfoName">申请公司</span>
+                </div>
+                <div id="div7" class="col-md-4 fixdInfo field-div">
+                    <span>自动带出</span>
+                </div>
+                <div id="div6" class="col-md-2 fixdInfo field-div InfoName">
+                    <span class="InfoName">申请部门</span>
+                </div>
+                <div id="div7" class="col-md-4 fixdInfo field-div">
+                    <span>自动带出</span>
+                </div>
+            </div>
+            <div id="main-form">
+                <div class="row" style="border: 1px solid #e0e0e0;height: 38px;padding: 0 9px !important;background: #e9e9e9;color: #39292c;font-size: 16px;padding-left: 10px;color: #39292c; line-height:38px;">
+                    <span>业务信息</span>
+                    <span class="glyphicon glyphicon-plus" style="float:right;line-height:38px;color:cornflowerblue;cursor:pointer;" aria-hidden="true" id="add-row" title="增加一行"></span>
+                </div>
+
+            </div>
+
+            <div id="child-form">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<!--主表右键鼠标操作-->
+<div id="RightMouseDiv" style="width:100%;height:100%;display:none;">
+    <div class="RightMouseOtherDiv" style="position:absolute;top:60px;left:0;z-index:100;opacity:0.1;width:100%;height:100%;background-color:#B6ACAC;" onclick="CloseMenu()">
+
+    </div>
+    <div class="RightMouseClick" style="float:left;z-index:101;width:120px;opacity:1;padding:5px;border-radius:3px;">
+        <div class="row RightMoustBtn" style=" text-align:center;height:24px;" onclick="deleteRow()">
+            <span style="display:block;width:100%;height:100%;line-height:24px;font-size:18px;background:#e0e0e0;text-decoration:none;">删除该行</span>
+        </div>
+        <div class="row RightMoustBtn" style=" text-align:center;height:24px;" onclick="deleteCell()">
+            <span style="display:block;width:100%;height:100%;line-height:24px;font-size:18px;background:#e0e0e0;text-decoration:none;">删除该单元格</span>
+        </div>
+    </div>
+</div>
+<!--主表右键鼠标操作-->
+<!--子表表右键鼠标操作-->
+<div id="ChildRightMouseDiv" style="width:100%;height:100%;display:none;">
+    <div class="RightMouseOtherDiv" style="position:absolute;top:60px;left:0;z-index:100;opacity:0.1;width:100%;height:100%;background-color:#B6ACAC;" onclick="CloseMenu()">
+
+    </div>
+    <div class="ChildRightMouseClick" style="float:left;z-index:101;width:120px;opacity:1;padding:5px;border-radius:3px;">
+        <div class="row RightMoustBtn" style=" text-align:center;height:24px;" onclick="deleteCell()">
+            <span style="display:block;width:100%;height:100%;line-height:24px;font-size:18px;background:#e0e0e0;text-decoration:none;">删除该单元格</span>
+        </div>
+    </div>
+</div>
+<!--子表右键鼠标操作-->

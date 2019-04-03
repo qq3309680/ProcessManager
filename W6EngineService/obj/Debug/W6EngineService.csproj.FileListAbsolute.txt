@@ -1,0 +1,16 @@
+D:\users\tanz01\Work6-OA\Dapper-Mvc\W6EngineService\bin\Debug\W6EngineService.exe.config
+D:\users\tanz01\Work6-OA\Dapper-Mvc\W6EngineService\bin\Debug\W6EngineService.exe
+D:\users\tanz01\Work6-OA\Dapper-Mvc\W6EngineService\bin\Debug\W6EngineService.pdb
+D:\users\tanz01\Work6-OA\Dapper-Mvc\W6EngineService\bin\Debug\log4net.xml
+D:\users\tanz01\Work6-OA\Dapper-Mvc\W6EngineService\obj\Debug\W6EngineService.ProjectInstaller.resources
+D:\users\tanz01\Work6-OA\Dapper-Mvc\W6EngineService\obj\Debug\W6EngineService.csproj.GenerateResource.Cache
+D:\users\tanz01\Work6-OA\Dapper-Mvc\W6EngineService\obj\Debug\W6EngineService.exe
+D:\users\tanz01\Work6-OA\Dapper-Mvc\W6EngineService\obj\Debug\W6EngineService.pdb
+E:\ProcessmManagerSystem\W6EngineService\bin\Debug\W6EngineService.exe.config
+E:\ProcessmManagerSystem\W6EngineService\bin\Debug\W6EngineService.exe
+E:\ProcessmManagerSystem\W6EngineService\bin\Debug\W6EngineService.pdb
+E:\ProcessmManagerSystem\W6EngineService\obj\Debug\W6EngineService.csprojResolveAssemblyReference.cache
+E:\ProcessmManagerSystem\W6EngineService\obj\Debug\W6EngineService.ProjectInstaller.resources
+E:\ProcessmManagerSystem\W6EngineService\obj\Debug\W6EngineService.csproj.GenerateResource.Cache
+E:\ProcessmManagerSystem\W6EngineService\obj\Debug\W6EngineService.exe
+E:\ProcessmManagerSystem\W6EngineService\obj\Debug\W6EngineService.pdb

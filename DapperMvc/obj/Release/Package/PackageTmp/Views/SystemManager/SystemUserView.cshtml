@@ -1,0 +1,210 @@
+﻿@{
+    ViewBag.Title = "人员管理";
+    Layout = "~/Views/Layout/NoMenuLayout.cshtml";
+}
+@model List<Domain.SystemUser>
+    @section PageScript{
+        <script>
+            $(function () {
+
+
+                //跳页
+                $(document).on("click", "#pageSkip", function () {
+                    window.location.href = "/SystemManager/SystemUserView?pageIndex=" + $("#pageIndex").val();
+                });
+
+                //增加人员
+                $(document).on("click", "#add-user", function () {
+                    $("#ObjectId").val("");
+                    $("#UserName").val("");
+                    $("#Account").val("");
+                    $("#Password").val("");
+                    $('#myModal').modal('show');
+                });
+                //修改人员
+                $(document).on("click", ".edit-user", function () {
+                    $("#ObjectId").val($(this).attr("ObjectId"));
+                    $("#UserName").val($(this).parent().parent().find(".UserName").html());
+                    $("#Account").val($(this).parent().parent().find(".Account").html());
+                    $("#Password").val($(this).parent().parent().find(".Password").val());
+                    $('#myModal').modal('show');
+                });
+                //删除人员
+                $(document).on("click", ".delete-user", function () {
+                    var flag = confirm("删除该记录将不能恢复，确定删除吗？");
+                    if (flag) {
+                        var model = new Object();
+                        model.ObjectId = $(this).attr("ObjectId");
+                        $.AJAXGetData("Post", "/SystemManager/SystemUserDelete", model, function (data) {
+                            if (data.States) {
+                                //数据编辑成功
+                                window.location.reload();
+                            }
+                        });
+                    }
+                });
+                //人员管理
+                $(document).on("click", "#submitBtn", function () {
+                    var model = new Object();
+                    model.ObjectId = $("#ObjectId").val();
+                    model.UserName = $("#UserName").val();
+                    model.Account = $("#Account").val();
+                    model.Password = $("#Password").val();
+                    $.AJAXGetData("Post", "/SystemManager/SystemUserEdit", model, function (data) {
+                        console.dir(data);
+                        if (data.States) {
+                            //数据编辑成功
+                            window.location.reload();
+                        }
+                    });
+
+                });
+            });
+        </script>
+    }
+    <div class="content-wrapper">
+
+        <section class="content-header">
+            <h4>
+                人员管理
+            </h4>
+            <ol class="breadcrumb">
+                <li><a><i class="fa fa-home"></i>首页</a></li>
+                <li class="active">人员管理</li>
+            </ol>
+        </section>
+
+        <section class="content">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header">
+                            <h3 class="box-title">
+                                <a id="add-user"><span class="label label-success"><i class="fa fa-plus"></i>新增</span></a>
+                            </h3>
+                            @*<div class="box-tools">
+                                    <div class="input-group" style="width: 150px;">
+                                        <input type="text" class="form-control input-sm pull-right" placeholder="查找..." />
+                                        <div class="input-group-btn">
+                                            <a class="btn btn-sm btn-default"><i class="fa fa-search"></i></a>
+                                        </div>
+                                    </div>
+                                </div>*@
+                        </div>
+                        <div class="box-body table-responsive no-padding">
+
+                            <div>
+                                <table class="table table-hover" border="0" style="border-width: 0px; border-collapse: collapse;">
+                                    <tr>
+                                        <th scope="col">序号</th>
+                                        <th scope="col">姓名</th>
+                                        <th scope="col">账号</th>
+                                        <th scope="col">密码</th>
+                                    </tr>
+                                    @{
+                                        for (int i = 0; i < Model.Count; i++)
+
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <span ObjectId="@Model[i].ObjectId">@(i + 1)</span>
+                                                </td>
+                                                <td style="width: 160px;">
+                                                    <span class="UserName">@Model[i].UserName</span>
+                                                </td>
+                                                <td>
+                                                    <span class="Account">@Model[i].Account</span>
+                                                </td>
+                                                <td>
+                                                    <span>
+                                                        <input type="password" class="Password" style="border:0px;" disabled="disabled" name="name" value="@Model[i].Password" />
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a ObjectId="@Model[i].ObjectId" title="修改" class="edit-user">
+                                                        <span class="label label-primary"><i class="fa fa-edit"></i>修改</span>
+                                                    </a>
+                                                    <a ObjectId="@Model[i].ObjectId" title="删除" class="delete-user">
+                                                        <span class="label label-danger"><i class="fa fa-remove"></i>删除</span>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    }
+                                </table>
+                            </div>
+
+                        </div>
+                        <div class="box-footer">
+                            <nav aria-label="Page navigation" style="text-align:center">
+                                <ul class="pagination">
+                                    <li><a href="/SystemManager/SystemUserView?pageIndex=1">1</a></li>
+                                    <li class="active">
+                                        @if (Request.Params["pageIndex"] != null)
+                                        {
+                                            <a href="#">
+                                                @Request.Params["pageIndex"]
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="#">
+                                                1
+                                            </a>
+                                        }
+                                    </li>
+                                    <li><a>跳至<input type="text" name="pageIndex" id="pageIndex" placeholder="页数" style="width:30px;height: 17px;border:0px;text-align:center" /></a></li>
+                                    <li><a href="/SystemManager/SystemUserView?pageIndex=@ViewBag.TotalPage">@ViewBag.TotalPage</a></li>
+                                    <li>
+                                        <a id="pageSkip" aria-label="Next">
+                                            <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+    <!--添加流程分类弹出框-->
+    <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">系统账户</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="ObjectId" value="" />
+                    <div class="form-group">
+                        <label for="UserName" class="control-label">用户名称</label>
+                        <input type="text" class="form-control" id="UserName">
+                    </div>
+                    <div class="form-group">
+                        <label for="Account" class="control-label">用户账户</label>
+                        <input type="text" class="form-control" id="Account">
+                    </div>
+                    <div class="form-group">
+                        <label for="Password" class="control-label">用户密码</label>
+                        <input type="password" class="form-control" id="Password">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-primary" id="submitBtn">确定</a>
+                    <a class="btn btn-default" data-dismiss="modal">取消</a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!--添加流程弹出框-->

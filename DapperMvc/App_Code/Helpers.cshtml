@@ -1,0 +1,54 @@
+﻿@helper LogisicsInfo(List<Domain.LogisticsInfo> List)
+{
+    <ul id='timeline'>
+        @{
+        
+            if (List.Count > 0)
+            {
+                foreach (var item in List)
+                {
+            <li class='work'>
+                @if (item.ObjectId == List[0].ObjectId)
+                {
+                    <input class='radio' id='@item.ObjectId' name='works' type='radio' checked>
+                }
+                else
+                {
+                    <input class='radio' id='@item.ObjectId' name='works' type='radio' >
+                }
+
+
+                <div class="relative">
+                    @if (item.LoadScan)
+                    {
+                        <label for='@item.ObjectId'>@item.CurrentSite : 装车发往 @item.NextSite</label>
+                    }
+                    @if (item.UnloadScan)
+                    {
+                        <label for='@item.ObjectId'>@item.CurrentSite : 卸车扫描</label>
+                    }
+                    <span class='date'>@item.OperationTime.ToString("yyyy-MM-dd HH:MM")</span>
+                    <span class='circle'></span>
+                </div>
+                <div class='content'>
+                    <p>
+                        当前站点：@item.CurrentSite
+                    </p>
+                    <p>
+                        时间: @item.OperationTime.ToString("yyyy-MM-dd HH:MM")
+                    </p>
+                    <p>
+                        操作人:@item.OperationPerson
+                    </p>
+                </div>
+            </li>
+                }
+            }
+            else
+            {
+                <h2>暂时没有信息</h2>
+            }
+        
+        }
+    </ul>
+}

@@ -1,0 +1,516 @@
+﻿@{
+    Layout = null;
+}
+@model  System.Collections.Generic.List<Domain.Proc_Node>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>台账原型</title>
+        <script src="~/Contents/underscore.js"></script>
+        <script src="https://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+        <script src="~/Contents/ExtentScript.js"></script>
+        <link href="~/Contents/ProcessAccount/css.css" rel="stylesheet" />
+        <script src="~/Contents/ProcessAccount/dargjs.js"></script>
+        <link href="~/Contents/WebPageCss/layout.css" rel="stylesheet" />
+        <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+        <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <style>
+            .field-input {
+                display: none;
+            }
+
+            .addStepRow, .deleteStepRow {
+                cursor: pointer;
+            }
+        </style>
+        <script>
+
+            var activeNode;
+
+            $(function () {
+
+                //双击点开修改角色窗口
+                $(document).on("dblclick", ".content", function () {
+
+                    var content = this;
+
+                    $("#roleName").val(content.innerHTML);
+
+                    activeNode = content;
+
+                    $('#myModal').modal('show');
+                });
+
+                //修改角色名称
+                $(document).on('click', "#roleChange", function () {
+
+                    $(activeNode).html($("#roleName").val());
+
+                    database.updateRoleName($(activeNode).parent(), $("#roleName").val());
+
+                    $('#myModal').modal('hide');
+
+                    //重新计算列宽
+                    calcTableHeaderWidth();
+                    columnAlign();
+                });
+
+                //更新流程台账
+                $(document).on('click', "#update", function () {
+
+                    console.dir(database.json);
+
+                    $.AJAXGetData("post", "/Process/EditProcessNode", { modelList: database.json, EditType: "更新" }, function (data) {
+
+                        console.dir(data);
+
+                        if (data.States) {
+
+                            alert("更新成功!");
+
+                        } else {
+
+                            alert("更新失败!");
+
+                        }
+
+                        window.location.reload();
+
+                    });
+
+                });
+
+
+                //替换当前版本流程台账
+                $(document).on('click', "#publish", function () {
+
+                    console.dir(database.json);
+
+                    $.AJAXGetData("post", "/Process/EditProcessNode", { modelList: database.json, EditType: "发布" }, function (data) {
+
+                        console.dir(data);
+
+                        if (data.States) {
+
+                            alert("发布成功!");
+
+                        } else {
+
+                            alert("发布失败!");
+
+                        }
+
+                        window.location.reload();
+
+                    });
+
+                });
+
+                //发布新版本流程台账
+                $(document).on('click', "#publish-new", function () {
+
+                    console.dir(database.json);
+
+                    var Version = $("#Version").html();
+
+                    $.AJAXGetData("post", "/Process/EditProcessNode", { modelList: database.json, EditType: "发布", Version: Version }, function (data) {
+
+                        console.dir(data);
+
+                        if (data.States) {
+
+                            alert("发布成功!");
+
+                        } else {
+
+                            alert("发布失败!");
+
+                        }
+
+                        window.location.reload();
+
+                    });
+
+                });
+
+
+                //发布新版本流程台账
+                $(document).on('click', "#publish-step", function () {
+
+                    $('#approveStepMpdal').modal('show');
+
+                });
+
+                //删除审批步骤行
+                $(document).on('click', ".deleteStepRow", function () {
+                    $(this).parent().parent().remove();
+                });
+                //增加审批步骤行
+                $(document).on('click', ".addStepRow", function () {
+
+                    var cloneDiv = $(this).parent().parent().parent().parent().find("tbody>tr:last").clone();
+
+                    $(this).parent().parent().parent().parent().find("tbody").append(cloneDiv);
+
+
+                    $(this).parent().parent().parent().parent().find("tbody>tr:last").find(".field-input").val("");
+                    $(this).parent().parent().parent().parent().find("tbody>tr:last").find(".field-span").html("");
+                    $(this).parent().parent().parent().parent().find("tbody>tr:last").find(".No").html(parseInt($(cloneDiv).find(".No").html()) + 1);
+
+                    console.dir($(this).parent().parent().parent().parent().find("tbody>tr:last").find("field-input"));
+
+                });
+
+                //发布审批步骤
+                $(document).on('click', "#publishApproveStep", function () {
+
+
+                    var list = new Array();
+
+                    $("#procNodeList").find("tr").each(function (key, val) {
+
+                        var model = new Object();
+
+                        model.ProcessName = $(val).find(".ProcessName").html();
+                        model.Content = $(val).find(".Content").find("input").val();
+                        model.Type = $(val).find(".Type").find("input").val();
+                        model.Version = $(val).find(".Version").html();
+
+                        list.push(model);
+
+                    });
+
+                    $.AJAXGetData("post", "/Process/PublishApproveStep", { modelList: list }, function (data) {
+                        console.dir(data);
+
+                        if (data.States) {
+
+                            alert("发布成功!");
+                            window.location.reload();
+                        } else {
+
+                            alert("发布失败!");
+
+                        }
+
+                    });
+
+                    $('#approveStepMpdal').modal('hide');
+
+
+
+
+                });
+
+
+                //生成审批步骤sql
+                $(document).on('click', "#createPublishSql", function () {
+
+
+                    var list = new Array();
+
+                    $("#procNodeList").find("tr").each(function (key, val) {
+
+                        var model = new Object();
+
+                        model.ProcessName = $(val).find(".ProcessName").html();
+                        model.Content = $(val).find(".Content").find("input").val();
+                        model.Type = $(val).find(".Type").find("input").val();
+                        model.Version = $(val).find(".Version").html();
+
+                        list.push(model);
+
+                    });
+
+                    $.AJAXGetData("post", "/Process/CreateApproveStepSql", { modelList: list }, function (data) {
+
+
+                        if (data.States) {
+
+                            $('#approveStepMpdal').modal('hide');
+
+                            $("#create-step-sql").val(data.Message);
+                            $('#create-step-sql-modal').modal('show');
+
+                        } else {
+
+                            alert("发布失败!");
+
+                        }
+
+                    });
+
+
+
+                });
+
+                //单元格聚焦事件
+                $(document).on("click", ".field-td", function () {
+                    $(this).find(".field-span").css("display", "none");
+                    $(this).find(".field-input").css("display", "block")
+                    var input = $(this).parent().find(".field-input");
+                    var value = $(this).find(".field-span").html();
+                    $(input).focus().val(value);
+                });
+                //单元格离焦事件
+                $(document).on("blur", ".field-input", function () {
+                    var value = $(this).val();
+                    if (value != "") {
+                        $(this).css("display", "none").parent().find(".field-span").css("display", "block").html(value);
+                    }
+                });
+
+
+
+                //导入流程
+                $(document).on('click', "#input-process-node", function () {
+
+                    $('#input-process-node-modal').modal('show');
+
+                });
+
+
+                //导入流程
+                $(document).on('click', "#input-process-node-btn", function () {
+
+                    var inputProcessCode = $("#inputProcessCode").val();
+                    var ProcessCode = $.GetLocationParams("WorkFlowCode");//流程编码
+                    var ProcessName = decodeURI($.GetLocationParams("WorkFlowName"));//流程名称
+                    var version = $("#Version").html();
+                    if (inputProcessCode != "") {
+                        $.AJAXGetData("post", "/Process/InputProcessNode", { ProcessCode: ProcessCode, ProcessName: ProcessName, inputProcessCode: inputProcessCode, version: version }, function (data) {
+
+
+                            if (data.States) {
+
+                                alert("更新成功!");
+
+                            } else {
+
+                                alert("更新失败!");
+
+                            }
+
+                            window.location.reload();
+
+                        });
+                    }
+
+                    $('#input-process-node-modal').modal('hide');
+
+                });
+
+
+                //说明
+                $('#form-explain').popover({
+                    trigger: 'toggle', //触发方式
+                    //template: "", //你自定义的模板
+                    title: "操作说明",//设置 弹出框 的标题
+                    html: true, // 为true的话，data-content里就能放html代码了
+                    content: "<div style='font-weight:900;color:red;'>注：双击节点修改角色名称。避免保存失败，添加分支后可多多点击保存按钮。</div>" + "<div>1、导入流程：可填入相似流程节点的流程编码复制已有流程台账。</div>" + "<div>2、增加分支：可增加默认分支。</div>" + "<div>3、保存：红色节点为新增，灰色节点为删除，绿色节点为修改角色名称，黄色为移动节点顺序。</div>",//这里可以直接写字符串，也可以 是一个函数，该函数返回一个字符串；
+                });
+
+            });
+        </script>
+    </head>
+    <body id="body" onselectstart="return false">
+        <input type="hidden" name="nodeList" id="nodeList" value="@(ViewData["nodeList"])" />
+        <input type="hidden" name="nodeData" id="nodeData" value="@(ViewData["nodeData"])" />
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <!--<ul class="nav navbar-nav navbar-form">
+                        <li><a class="btn btn-default" href="#">增加条件</a></li>
+                    </ul>-->
+                    <form class="navbar-form navbar-left">
+                        <a id="form-explain" tabindex="0" class="btn btn-info" role="button" data-toggle="popover" data-trigger="focus">操作说明</a>
+                        <a class="btn btn-primary" id="input-process-node">导入流程</a>
+                        <a class="btn btn-default" id="addBranch">增加分支</a>
+                    </form>
+                    <form class="navbar-form navbar-right">
+                        @if (CommonTool.AuthorityHelper.GetButtonAuthority((int)DapperMvc.Enum.AuthorityType.编辑, string.Format("/{0}/{1}", Request.RequestContext.RouteData.Values["controller"] + string.Empty, Request.RequestContext.RouteData.Values["action"] + string.Empty), "save"))
+                        {
+                            <a class="btn btn-default" id="update">保存</a>
+                        }
+                        @if (CommonTool.AuthorityHelper.GetButtonAuthority((int)DapperMvc.Enum.AuthorityType.编辑, string.Format("/{0}/{1}", Request.RequestContext.RouteData.Values["controller"] + string.Empty, Request.RequestContext.RouteData.Values["action"] + string.Empty), "publish"))
+                        {
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    发布
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a id="publish" href="#">替换当前版本</a></li>
+                                    <li><a id="publish-new">发布新版本</a></li>
+                                    <li><a id="publish-step">发布审批步骤</a></li>
+                                </ul>
+                            </div>
+                        }
+                    </form>
+                    <ul class="nav navbar-nav navbar-right">
+                        <!--<li><a href="#">发布</a></li>-->
+                        <li><a href="#">版本：V<span id="Version">@(ViewData["Version"])</span></a></li>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+
+        <div class="process-name">
+            <span>@(ViewData["processName"])</span>
+        </div>
+        <div id="node-content">
+            <div class="root-title">
+                <div class="root-title-cell" column="1">分支条件</div>
+                <div class="r_nbsp">&nbsp;</div>
+                <div class="root-title-cell" column="2">发起</div>
+                <div class="r_nbsp">&nbsp;</div>
+                <div class="root-title-cell" column="3">专业审批</div>
+                <div class="r_nbsp">&nbsp;</div>
+                <div class="root-title-cell" column="4">权责审批</div>
+                <div class="r_nbsp">&nbsp;</div>
+                <div class="root-title-cell" column="5">执行/知会</div>
+                <div class="r_nbsp">&nbsp;</div>
+                <div class="root-title-cell" column="6">归档</div>
+            </div>
+            <div class="move" id="root_row">
+                <div class="title"><div class="title_a">&nbsp;</div><div class="title_b">缩小</div><div class="title_c">删除</div></div>
+                <div class="content"></div>
+            </div>
+        </div>
+        <!--修改角色名称-->
+        <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">修改</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <input class="form-control" type="text" name="roleName" id="roleName" value="" />
+                                <input type="hidden" name="nodeId" id="nodeId" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="roleChange" class="btn btn-primary">确定</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        <!--修改角色名称-->
+        <!--发布审批步骤-->
+        <div id="approveStepMpdal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">发布审批步骤</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr class="info">
+                                    <td>序号</td>
+                                    <td>流程名称</td>
+                                    <td>节点名称</td>
+                                    <td>类型</td>
+                                    <td>版本</td>
+                                    <td><a class="addStepRow">增加一行</a></td>
+                                </tr>
+                            </thead>
+                            <tbody id="procNodeList">
+                                @if (Model.Count > 0)
+                                {
+                                    for (int i = 0; i < Model.Count; i++)
+                                    {
+                                        <tr>
+                                            <td class="No">@(i + 1)</td>
+                                            <td class="ProcessName">@Model[i].ProcessName</td>
+                                            <td class="Content field-td">
+                                                <input class="field-input  form-control" type="text" name="name" value=" @Model[i].Content" /><span class="field-span">@Model[i].Content</span>
+                                            </td>
+                                            <td class="Type field-td">
+                                                <input class="field-input  form-control" type="text" name="name" value=" @Model[i].Type" /><span class="field-span">@Model[i].Type</span>
+                                            </td>
+                                            <td class="Version">@Model[i].Version</td>
+                                            <td><a class="deleteStepRow">删除</a></td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="publishApproveStep" class="btn btn-primary">确定</button>
+                        <button type="button" id="createPublishSql" class="btn btn-primary">生成Sql语句</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        <!--发布审批步骤-->
+        <!--导入流程-->
+        <div id="input-process-node-modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">所需导入流程的编码</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <input class="form-control" type="text" name="inputProcessCode" id="inputProcessCode" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="input-process-node-btn" class="btn btn-primary">确定</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        <!--导入流程-->
+        <!--发布审批步骤语句-->
+        <div id="create-step-sql-modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">发布审批步骤语句</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <textarea id="create-step-sql" class="form-control" style="height:360px;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        <!--发布审批步骤语句-->
+
+        <div class="loading-div">
+        </div>
+        <div class="loading-img-div">
+            <img src="~/Contents/Img/LoadingImg/bigloading.gif" />
+            <span>加载中...</span>
+        </div>
+    </body>
+</html>

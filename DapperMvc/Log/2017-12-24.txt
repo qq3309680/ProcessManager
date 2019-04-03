@@ -1,0 +1,74 @@
+2017-12-24 00:00:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:00:00=============
+2017-12-24 00:00:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:00:00=============
+2017-12-24 00:01:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:01:00=============
+2017-12-24 00:01:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:01:00=============
+2017-12-24 00:02:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:02:00=============
+2017-12-24 00:02:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:02:00=============
+2017-12-24 00:03:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:03:00=============
+2017-12-24 00:03:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:03:00=============
+2017-12-24 00:04:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:04:00=============
+2017-12-24 00:04:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:04:00=============
+2017-12-24 00:05:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:05:00=============
+2017-12-24 00:05:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:05:00=============
+2017-12-24 00:06:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:06:00=============
+2017-12-24 00:06:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:06:00=============
+2017-12-24 00:07:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:07:00=============
+2017-12-24 00:07:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:07:00=============
+2017-12-24 00:08:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:08:00=============
+2017-12-24 00:08:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:08:00=============
+2017-12-24 00:09:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:09:00=============
+2017-12-24 00:09:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:09:00=============
+2017-12-24 00:10:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:10:00=============
+2017-12-24 00:10:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:10:00=============
+2017-12-24 00:11:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:11:00=============
+2017-12-24 00:11:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:11:00=============
+2017-12-24 00:11:55  INFO  DapperMvc.MvcApplication - 网站启动...
+2017-12-24 00:11:56  INFO  DapperMvc.Quartz.JobScheduler.JobScheduler - 打印日志=============启动时间时间：2017-12-24 00:11:56
+2017-12-24 00:12:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:12:00=============
+2017-12-24 00:12:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:12:00=============
+2017-12-24 00:13:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:13:00=============
+2017-12-24 00:13:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:13:00=============
+2017-12-24 00:14:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:14:00=============
+2017-12-24 00:14:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:14:00=============
+2017-12-24 00:15:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:15:00=============
+2017-12-24 00:15:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:15:00=============
+2017-12-24 00:16:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:16:00=============
+2017-12-24 00:16:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:16:00=============
+2017-12-24 00:17:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:17:00=============
+2017-12-24 00:17:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:17:00=============
+2017-12-24 00:18:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:18:00=============
+2017-12-24 00:18:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:18:00=============
+2017-12-24 00:19:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:19:00=============
+2017-12-24 00:19:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:19:00=============
+2017-12-24 00:20:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:20:00=============
+2017-12-24 00:20:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:20:00=============
+2017-12-24 00:21:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:21:00=============
+2017-12-24 00:21:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:21:00=============
+2017-12-24 00:22:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:22:00=============
+2017-12-24 00:22:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:22:00=============
+2017-12-24 00:23:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:23:00=============
+2017-12-24 00:23:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:23:00=============
+2017-12-24 00:24:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:24:00=============
+2017-12-24 00:24:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:24:00=============
+2017-12-24 00:24:14  INFO  DapperMvc.MvcApplication - 网站启动...
+2017-12-24 00:24:15  INFO  DapperMvc.Quartz.JobScheduler.JobScheduler - 打印日志=============启动时间时间：2017-12-24 00:24:15
+2017-12-24 00:25:09  INFO  DapperMvc.MvcApplication - 网站启动...
+2017-12-24 00:25:10  INFO  DapperMvc.Quartz.JobScheduler.JobScheduler - 打印日志=============启动时间时间：2017-12-24 00:25:10
+2017-12-24 00:26:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:26:00=============
+2017-12-24 00:26:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:26:00=============
+2017-12-24 00:27:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:27:00=============
+2017-12-24 00:27:00  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:27:00=============
+2017-12-24 00:28:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:28:00=============
+2017-12-24 00:28:04  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:28:04=============
+2017-12-24 00:28:26  INFO  DapperMvc.MvcApplication - 网站启动...
+2017-12-24 00:28:27  INFO  DapperMvc.Quartz.JobScheduler.JobScheduler - 打印日志=============启动时间时间：2017-12-24 00:28:27
+2017-12-24 00:29:00  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:29:00=============
+2017-12-24 00:29:30  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:29:30=============
+2017-12-24 00:30:10  INFO  DapperMvc.Quartz.Jobs.Test1Job - 打印日志=============开始执行时间：2017-12-24 00:30:10=============
+2017-12-24 00:30:10  INFO  DapperMvc.Quartz.MissionSyncHelper - 打印日志=============成功执行时间：2017-12-24 00:30:10=============
+2017-12-24 00:30:37  INFO  DapperMvc.MvcApplication - 网站启动...
+2017-12-24 00:30:38  INFO  DapperMvc.Quartz.JobScheduler.JobScheduler - 打印日志=============启动时间时间：2017-12-24 00:30:38
+2017-12-24 00:30:47  INFO  DapperMvc.Controllers.BackGroundController - 打印日志=============禁止时间时间：2017-12-24 00:30:47
+2017-12-24 00:34:46  INFO  DapperMvc.MvcApplication - 网站启动...
+2017-12-24 00:40:46  INFO  DapperMvc.MvcApplication - 网站启动...
+2017-12-24 11:32:42  INFO  DapperMvc.MvcApplication - 网站启动...

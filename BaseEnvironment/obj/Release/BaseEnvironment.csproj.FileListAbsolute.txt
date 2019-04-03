@@ -1,0 +1,17 @@
+E:\users\tanz01\DesignPattern\DapperMVC\BaseEnvironment\bin\Release\BaseEnvironment.dll
+E:\users\tanz01\DesignPattern\DapperMVC\BaseEnvironment\bin\Release\BaseEnvironment.pdb
+E:\users\tanz01\DesignPattern\DapperMVC\BaseEnvironment\obj\Release\BaseEnvironment.csprojResolveAssemblyReference.cache
+E:\users\tanz01\DesignPattern\DapperMVC\BaseEnvironment\obj\Release\BaseEnvironment.dll
+E:\users\tanz01\DesignPattern\DapperMVC\BaseEnvironment\obj\Release\BaseEnvironment.pdb
+E:\ProcessmManagerSystem\BaseEnvironment\bin\Release\BaseEnvironment.dll
+E:\ProcessmManagerSystem\BaseEnvironment\bin\Release\BaseEnvironment.pdb
+E:\ProcessmManagerSystem\BaseEnvironment\bin\Release\Domain.dll
+E:\ProcessmManagerSystem\BaseEnvironment\bin\Release\IService.dll
+E:\ProcessmManagerSystem\BaseEnvironment\bin\Release\System.Web.Mvc.dll
+E:\ProcessmManagerSystem\BaseEnvironment\bin\Release\Domain.pdb
+E:\ProcessmManagerSystem\BaseEnvironment\bin\Release\IService.pdb
+E:\ProcessmManagerSystem\BaseEnvironment\bin\Release\System.Web.Mvc.xml
+E:\ProcessmManagerSystem\BaseEnvironment\bin\Release\zh-Hans\System.Web.Mvc.resources.dll
+E:\ProcessmManagerSystem\BaseEnvironment\obj\Release\BaseEnvironment.csprojResolveAssemblyReference.cache
+E:\ProcessmManagerSystem\BaseEnvironment\obj\Release\BaseEnvironment.dll
+E:\ProcessmManagerSystem\BaseEnvironment\obj\Release\BaseEnvironment.pdb

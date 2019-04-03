@@ -1,0 +1,185 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>添加字段</title>
+    <script src="../../Skins/plugins/jQuery/jQuery-2.1.4.min.js"></script>
+
+
+    <link href="~/Contents/Css/pixel-admin.min.css" rel="stylesheet" />
+    <link href="~/Contents/Css/ligerUI/Aqua/css/ligerui-all.css" rel="stylesheet" />
+    <link href="~/Contents/Css/ligerUI/ligerui-icons.css" rel="stylesheet" />
+    <link href="~/Contents/Css/H3Default/H3-All.css" rel="stylesheet" />
+    <script src="~/Contents/Script/jquery.js"></script>
+    <script src="~/Contents/LigerUI/lib/ligerUI/js/ligerui.all.js"></script>
+    <script src="~/Contents/LigerUI/lib/ligerUI/js/plugins/ligerDrag.js"></script>
+    <script src="~/Contents/Script/H3AdminPlugins.js"></script>
+    @*<link href="../../Skins/bootstrap/css/bootstrap.min.css" rel="stylesheet" />*@
+    <script src="../../Skins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/Contents/ExtentScript.js"></script>
+    <script>
+        $(function ()
+        {
+            var dialog = frameElement.dialog; //调用页面的dialog对象(ligerui对象)            var ParentProperty = dialog.get('data').ParentProperty;//获取data参数            var SelectRow = dialog.get('data').selectRow;//获取data参数            //console.dir(SelectRow);            var IsSonTableField = false;            if (SelectRow != null)
+            {
+                IsSonTableField = true;
+                ParentProperty = SelectRow.ObjectId;
+            }            var PropertyGrid = dialog.get('PropertyGrid');//获取自定义参数
+
+            var WorkFlowCode = dialog.get('WorkFlowCode');//获取自定义参数
+
+            var IsSonTable = dialog.get('IsSonTable');//获取自定义参数
+
+            //console.dir(ParentProperty);
+            //console.dir(WorkFlowCode);
+            $(".H3ToolBar").AspLinkToolBar();
+            $(".H3Panel").BuildPanel();
+
+            $(document).on("click", "#btnSave", function ()
+            {
+                var ObjectId = $.GetGUID();
+                AddObjectSchemaField(ParentProperty, ObjectId);
+                dialog.close();
+            });
+
+            $(document).on("click", "#btnSaveAndContinue", function ()
+            {
+                var ObjectId = $.GetGUID();
+                AddObjectSchemaField(ParentProperty, ObjectId);
+                $("#DisplayName").val("");
+                $("#FieldCode").val("");
+            });
+
+            //添加数据字段
+            function AddObjectSchemaField(ParentProperty, ObjectId)
+            {
+
+                var Field = [];
+                var Data = new Object();
+                Data.ParentProperty = ParentProperty;
+                Data.ObjectId = ObjectId;
+                Data.DisplayName = $("#DisplayName").val();
+                Data.FieldCode = $("#FieldCode").val();
+                Data.LogicType = $("#LogicType").val();
+                Data.IsPublished = false;
+                Data.IsSonTable = IsSonTable;
+                Data.IsSystemField = false;
+                Field.push(Data);
+                var obj = new Object();
+                obj.FieldListString = JSON.stringify(Field);
+                obj.WorkFlowCode = WorkFlowCode;
+                console.dir(obj);
+                $.AJAXGetData("Post", "/Process/SaveObjectSchema", obj, function (data)
+                {
+                    console.dir(data);
+                    if (data.States)
+                    {
+                        //数据编辑成功
+                        //window.location.href = "/BackGround/Menu";
+                        //如果是添加子表数据
+                        if (IsSonTableField)
+                        {
+                            //如果是叶子节点，则升级
+                            if (PropertyGrid.isLeaf(SelectRow))
+                            {
+                                PropertyGrid.upgrade(SelectRow);
+                            }
+                            PropertyGrid.add({
+                                ParentProperty: ParentProperty,
+                                //ObjectId: $.GetGUID(),
+                                ObjectId: ObjectId,
+                                DisplayName: $("#DisplayName").val(),
+                                FieldCode: $("#FieldCode").val(),
+                                LogicType: $("#LogicType").val(),
+                                IsPublished: false,
+                                IsSonTable: true //是否子表
+                            }, null, true, SelectRow);
+                        } else
+                        {
+                            PropertyGrid.addRow({
+                                ParentProperty: ParentProperty,
+                                //ObjectId: $.GetGUID(),
+                                ObjectId: ObjectId,
+                                DisplayName: $("#DisplayName").val(),
+                                FieldCode: $("#FieldCode").val(),
+                                LogicType: $("#LogicType").val(),
+                                IsPublished: false,
+                                IsSonTable: false, //是否子表
+                                IsSystemField: false//是否系统字段
+                            });
+                        }
+                        alert("成功");
+                    } else
+                    {
+                        alert(data.ErrorMessage);
+                    }
+                });
+
+
+
+
+            }
+        });
+
+    </script>
+</head>
+<body>
+    <!--添加流程弹出框-->
+    <div id="addPropertyModal">
+
+        <div class="H3ToolBar">
+            <a id="btnSave" data-icon="fa fa-save">保存</a>
+            <a id="btnSaveAndContinue" data-icon="icon-baocunbingjixutianjia">保存并继续添加</a>
+
+        </div>
+        <div class="H3Panel">
+            <span>基本属性</span>
+            <table>
+                <tr>
+                    <td>编码</td>
+                    <td>
+                        <input name="FieldCode" type="text" id="FieldCode" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>显示名称</td>
+                    <td>
+                        <input name="DisplayName" type="text" id="DisplayName" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>数据项类型
+                    </td>
+                    <td>
+                        <select name="LogicType" id="LogicType">
+                            <option selected="selected" value="ShortString">短文本</option>
+                            <option value="String">长文本</option>
+                            <option value="Bool">逻辑型</option>
+                            <option value="Int">整数</option>
+                            <option value="Long">长整数</option>
+                            <option value="Double">数值</option>
+                            <option value="DateTime">日期</option>
+                            <option value="Attachment">附件</option>
+                            <option value="Comment">审批意见</option>
+                            <option value="BizObjectArray">子表</option>
+                            <option value="SingleParticipant">参与者（单人）</option>
+                            <option value="MultiParticipant">参与者（多人）</option>
+                            <option value="TimeSpan">时间段</option>
+                            <option value="Html">HTML</option>
+                            <option value="HyperLink">链接</option>
+
+                        </select>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,455 @@
+﻿@{
+    Layout = null;
+}
+@model Domain.OT_BizObjectSchema
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>数据模型</title>
+    <script src="../../Skins/plugins/jQuery/jQuery-2.1.4.min.js"></script>
+    <link href="~/Contents/Css/pixel-admin.min.css" rel="stylesheet" />
+    <link href="~/Contents/Css/ligerUI/Aqua/css/ligerui-all.css" rel="stylesheet" />
+    <link href="~/Contents/Css/ligerUI/ligerui-icons.css" rel="stylesheet" />
+    <link href="~/Contents/Css/H3Default/H3-All.css" rel="stylesheet" />
+    <script src="~/Contents/Script/jquery.js"></script>
+    <script src="~/Contents/LigerUI/lib/ligerUI/js/ligerui.all.js"></script>
+    <script src="~/Contents/LigerUI/lib/ligerUI/js/plugins/ligerDrag.js"></script>
+    <script src="~/Contents/Script/H3AdminPlugins.js"></script>
+    @*<link href="../../Skins/bootstrap/css/bootstrap.min.css" rel="stylesheet" />*@
+    <script src="../../Skins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/Contents/ExtentScript.js"></script>
+    <script src="~/Contents/underscore.js"></script>
+    <link href="~/Contents/WebPageCss/layout.css" rel="stylesheet" />
+    <script>
+
+
+        //编辑按钮
+        function AddProperty(element) {
+            alert(1);
+        }
+
+        //删除按钮
+        function DelProperty(element) {
+            var ConfirmFlag = confirm("确定要删除’" + $(element).attr("name") + "‘？删除会导致对应数据相应删除，请谨慎操作！");
+            if (ConfirmFlag) {
+                var obj = new Object();
+                obj.FieldObjectId = $(element).attr("ObjectId");
+                obj.IsSonTable = $(element).attr("IsSonTable");
+                obj.ParentProperty = $(element).attr("ParentProperty");
+                obj.WorkFlowCode = $("#WorkFlowCode").val();
+                $.AJAXGetData("Post", "/Process/DeleteField", obj, function (data) {
+
+                    if (data.States) {
+                        //数据编辑成功
+                        alert("成功");
+                        location.reload();
+
+                    } else {
+                        alert("失败");
+                    }
+                });
+            }
+        }
+
+        $(function () {
+
+            $("#H3ToolBar").AspLinkToolBar();
+            $("#H3ToolBar1").AspLinkToolBar({ IsFixed: false });
+            $(".H3Panel").BuildPanel({ excludeIDs: ["excludeDiv"] });
+            $(".H3Panel").CloseAllPanel({ excludeIDs: ["excludeDiv"] });
+            $("#formPanel").BuildPanel();
+
+            $(".H3ToolBar").AspLinkToolBar();
+
+            var SchemaField = [];
+            if ($("#SchemaField").val() != "") {
+                SchemaField = JSON.parse($("#SchemaField").val());
+            }
+            //console.dir(SchemaField);
+
+            var PropertyData = {
+                Rows: [
+                    { ParentProperty: null, ObjectId: "1", DisplayName: "基本信息字段", FieldCode: "", LogicType: "ShortString", IsPublished: true, IsSonTable: false, IsSystemField: true },
+                    { ParentProperty: "1", ObjectId: "2", DisplayName: "Id", FieldCode: "Id", LogicType: "Int", IsPublished: true, IsSonTable: false, IsSystemField: true },
+                    { ParentProperty: "1", ObjectId: "3", DisplayName: "任务Id", FieldCode: "TaskId", LogicType: "Int", IsPublished: true, IsSonTable: false, IsSystemField: true },
+                    { ParentProperty: "1", ObjectId: "4", DisplayName: "流水号 ", FieldCode: "SerialNumber ", LogicType: "ShortString", IsPublished: true, IsSonTable: false, IsSystemField: true },
+                    { ParentProperty: "1", ObjectId: "5", DisplayName: "标题", FieldCode: "Title", LogicType: "ShortString", IsPublished: true, IsSonTable: false, IsSystemField: true },
+                    { ParentProperty: "1", ObjectId: "6", DisplayName: "申请人", FieldCode: "Applicant", LogicType: "ShortString", IsPublished: true, IsSonTable: false, IsSystemField: true }
+                    ,
+                    { ParentProperty: "1", ObjectId: "7", DisplayName: "申请人账号", FieldCode: "ApplicantCode", LogicType: "ShortString", IsPublished: true, IsSonTable: false, IsSystemField: true },
+                    { ParentProperty: "1", ObjectId: "8", DisplayName: "申请日期", FieldCode: "ApplicationDate", LogicType: "DateTime", IsPublished: true, IsSonTable: false, IsSystemField: true }
+                    ,
+                    { ParentProperty: "1", ObjectId: "9", DisplayName: "申请公司", FieldCode: "ApplicationCompany", LogicType: "ShortString", IsPublished: true, IsSonTable: false, IsSystemField: true },
+                    { ParentProperty: "1", ObjectId: "9", DisplayName: "申请公司代码", FieldCode: "ApplicationCompanyCode", LogicType: "ShortString", IsPublished: true, IsSonTable: false, IsSystemField: true },
+                    { ParentProperty: "1", ObjectId: "9", DisplayName: "申请部门", FieldCode: "ApplicationDepartment", LogicType: "ShortString", IsPublished: true, IsSonTable: false, IsSystemField: true },
+                    { ParentProperty: "1", ObjectId: "9", DisplayName: "申请部门代码", FieldCode: "ApplicationDepartmentCode", LogicType: "ShortString", IsPublished: true, IsSonTable: false, IsSystemField: true }
+                ]
+            };
+            $.each(SchemaField, function (key, val) {
+                PropertyData.Rows.push(val);
+            });
+
+
+            console.dir(PropertyData);
+            var PropertyGrid = $("#PropertyGrid").ligerGrid({
+                rownumbers: true,
+                tree: {
+                    columnId: 'DisplayName',
+                    //columnName: 'name',
+                    idField: 'ObjectId',
+                    parentIDField: 'ParentProperty'
+                },
+                columns: [
+                { display: "ParentProperty", name: "ParentProperty", hide: true },
+                { display: "ObjectId", name: "ObjectId", hide: true },
+                { display: "显示名称", name: "DisplayName", id: "DisplayName", width: "20%" },
+                {
+                    display: "编码", name: "FieldCode", width: "20%", render: function (row, rowindex, value) {
+                        var text = value;
+                        if (row.LogicType == "BizObjectArray") {
+                            text = "C_" + value;
+                        }
+                        return text;
+                    }
+                },
+                {
+                    display: "类型", name: "LogicType", width: "20%", render: function (row, rowindex, value) {
+                        var LogicTypeText;
+                        switch (value) {
+                            case "ShortString":
+                                LogicTypeText = "短文本";
+                                break;
+                            case "String":
+                                LogicTypeText = "长文本";
+                                break;
+                            case "Bool":
+                                LogicTypeText = "逻辑型";
+                                break;
+                            case "Int":
+                                LogicTypeText = "整数";
+                                break;
+                            case "Long":
+                                LogicTypeText = "长整数";
+                                break;
+                            case "Double":
+                                LogicTypeText = "数值";
+                                break;
+                            case "DateTime":
+                                LogicTypeText = "日期";
+                                break;
+                            case "Attachment":
+                                LogicTypeText = "附件";
+                                break;
+
+                            case "BizObjectArray":
+                                LogicTypeText = "子表";
+                                break;
+                                //case "SingleParticipant":
+                                //    LogicTypeText = "参与者（单人）";
+                                //    break;
+                                //case "MultiParticipant":
+                                //    LogicTypeText = "参与者（多人）";
+                                //    break;
+                                //case "TimeSpan":
+                                //    LogicTypeText = "时间段";
+                                //    break;
+                                //case "Html":
+                                //    LogicTypeText = "HTML";
+                                //    break;
+                                //case "HyperLink":
+                                //    LogicTypeText = "链接";
+                                //    break;
+                                //case "Guid":
+                                //    LogicTypeText = "Guid";
+                                //    break;
+                            default:
+
+                        }
+                        return LogicTypeText;
+                    }
+                },
+           //{ display: "ChildSchemaCode", name: "ChildSchemaCode", hide: true },
+             { display: "已发布", name: "IsPublished", render: BuildBoolCoum, align: "center", width: "10%" },
+                {
+                    display: "编辑", code: "edit", width: "20%", render: function (row, rowindex, value) {
+
+                        //console.dir(row);
+
+                        if (row.IsReserved) {
+                            return "";
+                        }
+
+                        var BizObject = [];
+                        var BizObjectArray = [];
+
+                        var addLink = "<div style='padding-left:5px;float:left;'>";
+                        addLink += "<a  style='text-align:left;display:none;' ParentProperty='" + row.ParentProperty + "' property='" + row.ItemName + "' parentid='' name='" + row.DisplayName + "' IsPublished='" + row.IsPublished + "' onclick='AddProperty(this)'>" + "编辑" + "</a>";
+                        addLink += "</div>";
+                        var editProperty = "<div style='padding-left:5px;float:left;'>";
+                        editProperty += "<a href='javascript:void(0);' style='text-align:left;' ParentProperty='" + row.ObjectId + "'rowIndex='" + row.__index + "' parentid='" + row.ItemName + "' name='" + row.DisplayName + "' FieldCode='" + row.FieldCode + "' class='AddSonTableField'>" + "新增数据项" + "</a>";
+                        editProperty += "</div>";
+                        var delLnk = "<div style='padding-left:5px;float:left;'><a href='javascript:void(0);' style='text-align:left;' ParentProperty='" + row.ParentProperty + "' property='" + row.ItemName + "' name='" + row.DisplayName + "' ObjectId='" + row.ObjectId + "'  IsSonTable='" + row.IsSonTable + "'  onclick='DelProperty(this)'>" + "删除" + "</a></div>";
+
+                        if (row.LogicType == "BizObject" || row.LogicType == "BizObjectArray")
+                            addLink = addLink + editProperty;
+
+                        if (row.IsSystemField) {
+                            return "";
+                        }
+                        return addLink + delLnk;// UpSeq + DownSeq;
+                    }
+                }
+                ],
+                enabledEdit: true, isScroll: false,
+                data: PropertyData,
+                alternatingRow: false,
+                width: '100%',
+                usePager: false
+
+                //=================================================
+
+
+            });
+
+
+
+            //添加数据
+            $(document).on("click", "#btnAddProperty", function () {
+                $.ligerDialog.open({
+                    height: 380,
+                    width: 800,
+                    title: '添加数据项',
+                    url: '/Process/AddObjectSchemaField',
+                    showMax: false,
+                    showToggle: true,
+                    showMin: false,
+                    isResize: true,
+                    slide: false,
+                    data: {
+                        ParentProperty: $.GetLocationParams("ParentProperty")
+                    },
+                    //自定义参数
+                    PropertyGrid: PropertyGrid,
+                    WorkFlowCode: $("#WorkFlowCode").val(),
+                    IsShareTable: $("#shareDataTable").val(),
+                    ShareTableCode: $("#DataTableCode").val(),
+                    IsSonTable: false
+                });
+
+
+            });
+            //添加子表数据
+            $(document).on("click", ".AddSonTableField", function () {
+
+                $.ligerDialog.open({
+                    height: 380,
+                    width: 800,
+                    title: '添加数据项',
+                    url: '/Process/AddObjectSchemaField',
+                    showMax: false,
+                    showToggle: true,
+                    showMin: false,
+                    isResize: true,
+                    slide: false,
+                    data: {
+                        selectRow: PropertyGrid.getRow($(this).attr("rowIndex"))
+                    },
+                    //自定义参数
+                    PropertyGrid: PropertyGrid,
+                    SonTableCode: $(this).attr("SonTableCode"),
+                    WorkFlowCode: $("#WorkFlowCode").val(),
+                    IsShareTable: $("#shareDataTable").val(),
+                    ShareTableCode: $("#DataTableCode").val(),
+                    IsSonTable: true
+                });
+            });
+
+
+            //保存
+            //添加子表数据
+            $(document).on("click", "#btnSave", function () {
+                var FieldData = PropertyGrid.getData();
+                FieldData = _.without(FieldData, FieldData[0]);//移除第一项(系统字段)
+                FieldData = _.filter(FieldData, function (val) //移除子表数据
+                {
+                    //console.dir(val);
+                    return val.IsSonTable == false;
+                });
+                FieldData = _.filter(FieldData, function (val) //移除系统字段
+                {
+                    return val.IsSystemField == false;
+                });
+                var obj = new Object();
+                obj.FieldListString = JSON.stringify(FieldData);
+                obj.WorkFlowCode = $("#WorkFlowCode").val();
+                obj.IsShareTable = $("#shareDataTable").val();
+                obj.ShareTableCode = $("#DataTableCode").val();
+                $.AJAXGetData("Post", "/Process/SaveObjectSchema", obj, function (data) {
+                    console.dir(data);
+                    alert("成功");
+                    if (data.States) {
+                        //数据编辑成功
+                        location.reload();
+
+                    }
+                });
+
+            });
+
+
+            //发布数据模型
+            $(document).on("click", "#btnPublish", function () {
+                var FieldData = PropertyGrid.getData();
+                //console.dir(FieldData);
+                FieldData = _.without(FieldData, FieldData[0]);//移除第一项(系统字段)
+                FieldData = _.filter(FieldData, function (val) //移除子表数据
+                {
+                    //console.dir(val);
+                    return val.IsSonTable == false;
+                });
+                FieldData = _.filter(FieldData, function (val) //移除系统字段
+                {
+                    return val.IsSystemField == false;
+                });
+                //console.dir(FieldData);
+                var obj = new Object();
+                obj.FieldListString = JSON.stringify(FieldData);
+                obj.WorkFlowCode = $("#WorkFlowCode").val();
+                console.dir(obj);
+                $.AJAXGetData("Post", "/Process/PublishObjectSchema", obj, function (data) {
+                    if (data.States) {
+                        //数据编辑成功
+                        //window.location.href = "/BackGround/Menu";
+                        location.reload();
+                        alert("成功");
+                    }
+                });
+
+            });
+
+            //是否共用数据表
+            $(document).on("change", "#shareDataTable", function () {
+                if ($(this).val() == "true") {
+                    $(".shareData").css("display", "none");
+                    $(".noShareData").css("display", "block");
+                } else {
+                    $(".shareData").css("display", "block");
+                    $(".noShareData").css("display", "none");
+                }
+            });
+
+
+
+            $(document).on("change", "#DataTableCode", function () {
+                $("#tableName").val("I_" + $(this).val());
+            });
+
+
+            //导入表单
+            $(document).on("click", "#inputDateTable", function () {
+                var obj = new Object();
+                obj.WorkFlowCode = $("#WorkFlowCode").val();
+                obj.IsShareTable = $("#shareDataTable").val();
+                obj.ShareTableCode = $("#DataTableCode").val();
+                $.AJAXGetData("Post", "/Process/InputDateTable", obj, function (data) {
+                    if (data.States) {
+                        //数据编辑成功
+                        alert("成功");
+                        location.reload();
+
+                    }
+                });
+
+            });
+
+        });
+
+
+    </script>
+</head>
+<body>
+    <input type="hidden" id="WorkFlowCode" value="@ViewData["WorkFlowCode"]" />
+    <input type="hidden" id="SchemaField" value="@Model.Content" />
+
+    <div id="H3ToolBar">
+        @*<a id="btnSave" data-icon="fa fa-save">保存</a>*@
+
+        @if (Model.IsShareTable)
+        {
+            <a class="shareData" id="btnPublish" data-icon="fa fa-upload" style="display:none;">发布</a>
+            <a class="noShareData" id="inputDateTable" data-icon="fa fa-arrows-alt">导入</a>
+        }
+        else
+        {
+            <a class="shareData" id="btnPublish" data-icon="fa fa-upload">发布</a>
+            <a class="noShareData" id="inputDateTable" data-icon="fa fa-arrows-alt" style="display:none;">导入</a>
+        }
+
+
+
+        @*<a href="javascript:void(0);" id="btnAclManger" data-icon="icon-quanxianshezhi" onclick="btnAclManger_Click(this)">权限设置</a>*@
+    </div>
+
+
+    <div id="formPanel">
+        <table>
+            <tr>
+                <td>是否共用数据表</td>
+                <td>
+                    <select id="shareDataTable">
+                        @if (Model.IsShareTable)
+                        {
+                            <option value="true" selected="selected">是</option>
+                            <option value="false">否</option>
+                        }
+                        else
+                        {
+                            <option value="true">是</option>
+                            <option value="false" selected="selected">否</option>
+                        }
+                    </select>
+                </td>
+                <td>表单编码</td>
+                <td>
+                    <input type="text" name="name" id="DataTableCode" value="@Request.Params["WorkFlowCode"]" />
+                </td>
+                <td>数据表名</td>
+                <td>
+                    <input type="text" name="name" id="tableName" value="I_@Request.Params["WorkFlowCode"]" readonly="readonly" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="GridPannel" class="H3Panel">
+
+        <span>数据项列表</span>
+
+        <div id="excludeDiv">
+
+            <div id="H3ToolBar1">
+                @if (Model.IsShareTable)
+                {
+                    <a class="shareData" id="btnAddProperty" data-icon="fa fa-plus" style="display:none;">添加数据项</a>
+                }
+                else
+                {
+                    <a class="shareData" id="btnAddProperty" data-icon="fa fa-plus">添加数据项</a>
+                }
+
+                @*<a id="btnDel" data-icon="fa fa-minus">删除</a>*@
+            </div>
+
+            <div id="PropertyGrid"></div>
+        </div>
+    </div>
+    <div class="loading-div">
+    </div>
+    <div class="loading-img-div">
+        <img src="~/Contents/Img/LoadingImg/bigloading.gif" />
+        <span>加载中...</span>
+    </div>
+
+</body>
+</html>

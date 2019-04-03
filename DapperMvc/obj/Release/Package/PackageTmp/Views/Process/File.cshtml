@@ -1,0 +1,124 @@
+﻿
+@model Domain.Proc_Type
+
+@{
+    Layout = null;
+
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>文件夹信息</title>
+    <link href="~/Contents/Css/pixel-admin.min.css" rel="stylesheet" />
+    <link href="~/Contents/Css/ligerUI/Aqua/css/ligerui-all.css" rel="stylesheet" />
+    <link href="~/Contents/Css/ligerUI/ligerui-icons.css" rel="stylesheet" />
+    <link href="~/Contents/Css/H3Default/H3-All.css" rel="stylesheet" />
+    <script src="~/Contents/Script/jquery.js"></script>
+    <script src="~/Contents/LigerUI/lib/ligerUI/js/ligerui.all.js"></script>
+    <script src="~/Contents/LigerUI/lib/ligerUI/js/plugins/ligerDrag.js"></script>
+    <script src="~/Contents/Script/H3AdminPlugins.js"></script>
+    <script src="~/Contents/ExtentScript.js"></script>
+    <script>
+
+        $(function () {
+            $("#H3ToolBar").AspLinkToolBar();
+            $("#H3Panel").BuildPanel();
+            $("#save-btn").on("click", function () {
+                var model = new Object();
+                model.ObjectId = $("#ObjectId").val();
+                model.ProcessType = $("#ProcessType").val();
+                model.ParentObjectId = $("#ParentObjectId").val();
+                model.Sort = $("#Sort").val();
+                model.LevelName = $("#LevelName").val();
+                model.Attribute = $("#Attribute").val();
+                model.ModifyDate = new Date();
+                $.AJAXGetData("Post", "/Process/EditProc_Type", model, function (data) {
+                    if (data.States) {
+                        //数据编辑成功
+                        alert("成功");
+                        window.parent.location.href = "/Process/ProceduralModel";
+                    }
+
+                });
+
+            });
+
+            $("#btnDel").on("click", function () {
+                var model = new Object();
+                model.ObjectId = $("#ObjectId").val();
+                $.AJAXGetData("Post", "/Process/DeleteProc_Type", model, function (data) {
+                    if (data.States) {
+                        //数据编辑成功
+                        alert("成功");
+                        window.parent.location.href = "/Process/ProceduralModel";
+                    }
+
+                });
+
+            });
+
+        });
+
+
+    </script>
+</head>
+<body>
+    <div id="H3ToolBar">
+        <a data-icon="fa fa-save" id="save-btn">保存</a>
+        <a id="btnDel" data-icon="fa fa-minus">删除</a>
+    </div>
+    <div id="H3Panel">
+        <span>文件夹信息</span>
+        <table>
+
+            <tr>
+                <td>编码</td>
+                <td>
+                    <input type="text" name="name" id="ObjectId" value="@Model.ObjectId" readonly="readonly" disabled="disabled" />
+                </td>
+            </tr>
+            <tr>
+                <td>类别</td>
+                <td>
+                    <input type="text" name="name" id="ProcessType" value="@Model.ProcessType.Trim()" />
+
+                </td>
+            </tr>
+            <tr>
+                <td>ParentObjectId</td>
+                <td>
+                    <input type="text" name="name" id="ParentObjectId" value="@Model.ParentObjectId" readonly="readonly" disabled="disabled" />
+                </td>
+            </tr>
+            <tr>
+                <td>排序</td>
+                <td>
+                    <input type="text" name="name" id="Sort" value="@Model.Sort" />
+                </td>
+            </tr>
+            <tr>
+                <td>级别类型</td>
+                <td>
+                    <input type="text" name="name" id="LevelName" value="@Model.LevelName" />
+                </td>
+            </tr>
+            <tr>
+                <td>分类属性</td>
+                <td>
+                    <input type="text" name="name" id="Attribute" value="@Model.Attribute" />
+                </td>
+            </tr>
+            <tr>
+                <td>修改时间</td>
+                <td>
+                    <input type="text" disabled="disabled" name="name" id="ModifyDate" value="@Model.ModifyDate" />
+                </td>
+            </tr>
+
+        </table>
+    </div>
+</body>
+</html>
