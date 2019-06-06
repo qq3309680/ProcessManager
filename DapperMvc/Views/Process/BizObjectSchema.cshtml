@@ -27,7 +27,6 @@
 
         //编辑按钮
         function AddProperty(element) {
-            alert(1);
         }
 
         //删除按钮
@@ -39,6 +38,7 @@
                 obj.IsSonTable = $(element).attr("IsSonTable");
                 obj.ParentProperty = $(element).attr("ParentProperty");
                 obj.WorkFlowCode = $("#WorkFlowCode").val();
+                console.dir(obj);
                 $.AJAXGetData("Post", "/Process/DeleteField", obj, function (data) {
 
                     if (data.States) {
@@ -92,7 +92,6 @@
             });
 
 
-            console.dir(PropertyData);
             var PropertyGrid = $("#PropertyGrid").ligerGrid({
                 rownumbers: true,
                 tree: {
@@ -286,6 +285,7 @@
                 obj.WorkFlowCode = $("#WorkFlowCode").val();
                 obj.IsShareTable = $("#shareDataTable").val();
                 obj.ShareTableCode = $("#DataTableCode").val();
+                obj.DbName = $("#DbName").val();
                 $.AJAXGetData("Post", "/Process/SaveObjectSchema", obj, function (data) {
                     console.dir(data);
                     alert("成功");
@@ -317,6 +317,7 @@
                 var obj = new Object();
                 obj.FieldListString = JSON.stringify(FieldData);
                 obj.WorkFlowCode = $("#WorkFlowCode").val();
+                obj.dbName = $("#DbName").val();
                 console.dir(obj);
                 $.AJAXGetData("Post", "/Process/PublishObjectSchema", obj, function (data) {
                     if (data.States) {
@@ -353,6 +354,7 @@
                 obj.WorkFlowCode = $("#WorkFlowCode").val();
                 obj.IsShareTable = $("#shareDataTable").val();
                 obj.ShareTableCode = $("#DataTableCode").val();
+                obj.DbName = $("#DbName").val();
                 $.AJAXGetData("Post", "/Process/InputDateTable", obj, function (data) {
                     if (data.States) {
                         //数据编辑成功
@@ -397,7 +399,7 @@
         <table>
             <tr>
                 <td>是否共用数据表</td>
-                <td>
+                <td style="width:80px;">
                     <select id="shareDataTable">
                         @if (Model.IsShareTable)
                         {
@@ -411,13 +413,45 @@
                         }
                     </select>
                 </td>
+                <td>数据库名称</td>
+                <td>
+                    <select id="DbName">
+                        <option value="ProcDB" @(Model.DbName == "ProcDB" || string.IsNullOrEmpty(Model.DbName) ? "selected='selected'" : "")>ProcDB</option>
+                        <option value="OADB" @(Model.DbName == "OADB" ? "selected='selected'" : "")>OADB</option>
+                        <option value="EBSDB" @(Model.DbName == "EBSDB" ? "selected='selected'" : "")>EBSDB</option>
+                        <option value="HCMDB" @(Model.DbName == "HCMDB" ? "selected='selected'" : "")>HCMDB</option>
+                        <option value="SALESDB" @(Model.DbName == "SALESDB" ? "selected='selected'" : "")>SALESDB</option>
+                        <option value="SYZDB" @(Model.DbName == "SYZDB" ? "selected='selected'" : "")>SYZDB</option>
+                        <option value="NCDB" @(Model.DbName == "NCDB" ? "selected='selected'" : "")>NCDB</option>
+                        <option value="CRMDB" @(Model.DbName == "CRMDB" ? "selected='selected'" : "")>CRMDB</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
                 <td>表单编码</td>
                 <td>
-                    <input type="text" name="name" id="DataTableCode" value="@Request.Params["WorkFlowCode"]" />
+                    @if (Model.IsShareTable)
+                    {
+                        <input type="text" name="name" id="DataTableCode" value="@Model.ShareTableCode" />
+                    }
+                    else
+                    {
+                        <input type="text" name="name" id="DataTableCode" value="@Request.Params["WorkFlowCode"]" />
+                    }
+
                 </td>
                 <td>数据表名</td>
                 <td>
-                    <input type="text" name="name" id="tableName" value="I_@Request.Params["WorkFlowCode"]" readonly="readonly" />
+
+                    @if (Model.IsShareTable)
+                    {
+ 
+                        <input type="text" name="name" id="tableName" value="I_@Model.ShareTableCode" readonly="readonly" />
+                    }
+                    else
+                    {
+                        <input type="text" name="name" id="tableName" value="I_@Request.Params["WorkFlowCode"]" readonly="readonly" />
+                    }
                 </td>
             </tr>
         </table>

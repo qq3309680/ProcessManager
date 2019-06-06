@@ -52,7 +52,7 @@
                 $.AJAXGetData("Post", "/Process/DeleteProc_Type", model, function (data) {
                     if (data.States) {
                         //数据编辑成功
-                        alert("成功");
+                        alert(data.Message);
                         window.parent.location.href = "/Process/ProceduralModel";
                     }
 

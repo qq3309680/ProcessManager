@@ -48,6 +48,7 @@
     <Compile Include="IOT_WorkflowTemplateService.cs" />
     <Compile Include="IProcessTableModel.cs" />
     <Compile Include="IProc_NodeService.cs" />
+    <Compile Include="IProc_Node_ReleaseService.cs" />
     <Compile Include="IProc_Type.cs" />
     <Compile Include="IRoleRelationship.cs" />
     <Compile Include="ISystemRole.cs" />

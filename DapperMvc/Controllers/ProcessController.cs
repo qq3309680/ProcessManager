@@ -32,6 +32,7 @@ namespace DapperMvc.Controllers
         private static readonly ILog _logger = LogManager.GetLogger(typeof(ProcessController));
 
         private IProc_NodeService _procNode;
+        private IProc_Node_ReleaseService _procNode_Release;
         private IProc_Type _procType;
         private IOT_WorkflowTemplateDraftService _workflowTemplateDraftService;
         private IOT_WorkflowTemplateService _workflowTemplateService;
@@ -41,8 +42,9 @@ namespace DapperMvc.Controllers
         #endregion
 
         #region 构造函数
-        public ProcessController(IProc_NodeService procNode, IProc_Type procType, IOT_WorkflowTemplateDraftService workflowTemplateDraftService, IOT_BizObjectSchemaDraftService bizObjectSchemaDraftService, IOT_BizObjectSchemaService bizObjectSchemaService, IOT_WorkflowTemplateService workflowTemplateService, IProcessTableModel processTableModel)
+        public ProcessController(IProc_Node_ReleaseService procNodeRelease, IProc_NodeService procNode, IProc_Type procType, IOT_WorkflowTemplateDraftService workflowTemplateDraftService, IOT_BizObjectSchemaDraftService bizObjectSchemaDraftService, IOT_BizObjectSchemaService bizObjectSchemaService, IOT_WorkflowTemplateService workflowTemplateService, IProcessTableModel processTableModel)
         {
+            this._procNode_Release = procNodeRelease;
             this._procNode = procNode;
             this._procType = procType;
             this._workflowTemplateDraftService = workflowTemplateDraftService;
@@ -255,20 +257,29 @@ namespace DapperMvc.Controllers
 
             model.IsDelete = true;
 
-            EditCount = _procType.UpdateTable<Proc_Type>(model, param);
-
-            if (EditCount > 0)
+            if (CookieHelper.GetCookie("systemUserAccount", "") == "hrAdmin")
             {
-                result.States = true;
-                result.Message = "成功.";
+                EditCount = _procType.UpdateTable<Proc_Type>(model, param);
 
+                if (EditCount > 0)
+                {
+                    result.States = true;
+                    result.Message = "成功.";
+
+                }
+                else
+                {
+                    result.States = false;
+                    result.Message = "失败.";
+
+                }
             }
             else
             {
-                result.States = false;
-                result.Message = "失败.";
-
+                result.Message = "没有权限删除.";
             }
+
+
 
             return AjaxJson(result);
         }
@@ -281,24 +292,32 @@ namespace DapperMvc.Controllers
         public ActionResult DeleteProcess(string WorkflowCode)
         {
             AjaxReturnData result = new AjaxReturnData();
-            List<string> sqlList = new List<string>();
-            sqlList.Add(string.Format("delete from OT_BizObjectSchema where SchemaCode='{0}'", WorkflowCode));//删除保存的数据模型
-            //sqlList.Add(string.Format("delete from OT_BizObjectSchemaDraft where SchemaCode='{0}'", WorkflowCode));//删除发布的数据模型
-            sqlList.Add(string.Format("update  OT_WorkflowTemplate set IsDelete='1' where WorkflowCode='{0}'", WorkflowCode));//删除流程模板
-            //sqlList.Add(string.Format("delete from OT_WorkflowTemplateDraft where WorkflowCode='{0}'", WorkflowCode));//删除流程模板
-            sqlList.Add(string.Format(@"if exists (select 1  from  sysobjects  
+            if (CookieHelper.GetCookie("systemUserAccount", "") == "hrAdmin")
+            {
+                List<string> sqlList = new List<string>();
+                sqlList.Add(string.Format("delete from OT_BizObjectSchema where SchemaCode='{0}'", WorkflowCode));//删除保存的数据模型
+                                                                                                                  //sqlList.Add(string.Format("delete from OT_BizObjectSchemaDraft where SchemaCode='{0}'", WorkflowCode));//删除发布的数据模型
+                sqlList.Add(string.Format("update  OT_WorkflowTemplate set IsDelete='1' where WorkflowCode='{0}'", WorkflowCode));//删除流程模板
+                                                                                                                                  //sqlList.Add(string.Format("delete from OT_WorkflowTemplateDraft where WorkflowCode='{0}'", WorkflowCode));//删除流程模板
+                sqlList.Add(string.Format(@"if exists (select 1  from  sysobjects  
                                         where  id = object_id('I_{0}')   and   type = 'U')   
                                         drop table I_{0}", WorkflowCode));//删除数据表
-            int successCount = DapperHelper.CreateInstance().TransAction(sqlList);
-            if (successCount > 0)
-            {
-                result.Message = "删除成功.";
+                int successCount = DapperHelper.CreateInstance().TransAction(sqlList);
+                if (successCount > 0)
+                {
+                    result.Message = "删除成功.";
+                }
+                else
+                {
+                    result.States = false;
+                    result.ErrorMessage = "删除失败.";
+                }
             }
             else
             {
-                result.States = false;
-                result.ErrorMessage = "删除失败.";
+                result.Message = "没有权限删除.";
             }
+
 
             return AjaxJson(result);
         }
@@ -443,7 +462,7 @@ namespace DapperMvc.Controllers
         /// <param name="IsShareTable"></param>
         /// <param name="ShareTableCode"></param>
         /// <returns></returns>
-        public ActionResult InputDateTable(string WorkFlowCode, bool IsShareTable, string ShareTableCode)
+        public ActionResult InputDateTable(string WorkFlowCode, bool IsShareTable, string ShareTableCode, string DbName)
         {
             AjaxReturnData result = new AjaxReturnData();
 
@@ -456,6 +475,7 @@ namespace DapperMvc.Controllers
                 list[0].Content = inputList[0].Content;
                 list[0].IsShareTable = true;
                 list[0].ShareTableCode = ShareTableCode;
+                list[0].DbName = DbName;
                 int updateCount = _bizObjectSchemaService.UpdateTable<OT_BizObjectSchema>(list[0]);
                 if (updateCount > 0)
                 {
@@ -479,6 +499,7 @@ namespace DapperMvc.Controllers
                 model.ModifiedTime = DateTime.Now;
                 model.IsShareTable = IsShareTable;
                 model.ShareTableCode = ShareTableCode;
+                model.DbName = DbName;
                 int insertCount = _bizObjectSchemaService.Insert<OT_BizObjectSchema>(model);
                 if (insertCount > 0)
                 {
@@ -501,16 +522,18 @@ namespace DapperMvc.Controllers
         /// <param name="FieldListString"></param>
         /// <param name="WorkFlowCode"></param>
         /// <returns></returns>
-        public ActionResult PublishObjectSchema(string FieldListString, string WorkFlowCode)
+        public ActionResult PublishObjectSchema(string FieldListString, string WorkFlowCode, string dbName = "ProcDB")
         {
+            string dbConnectionKey = string.Format("Data Source = {0}; Initial Catalog = {1}; User Id = {2}; Password = {3} ", ConfigurationManager.AppSettings["DataSource"], dbName, ConfigurationManager.AppSettings["UserId"], ConfigurationManager.AppSettings["Password"]);
+
             AjaxReturnData result = new AjaxReturnData();
             JArray ObjectSchemaList = JArray.Parse(FieldListString);
             //已保存的数据模型
             OT_BizObjectSchema model = new OT_BizObjectSchema();
             model = _bizObjectSchemaService.SelectData<OT_BizObjectSchema>("select * from OT_BizObjectSchema where SchemaCode='" + WorkFlowCode + "'")[0];
 
-            string hasTableSql = "select count(*) from sysobjects where id = object_id('" + ConfigurationManager.AppSettings["BpmDbName"] + ".dbo.I_" + WorkFlowCode + "')";
-            int hasTableCount = DapperHelper.CreateInstance(ConfigurationManager.AppSettings["SqlConnectionKey_BPMDB"]).ExecuteScalar(hasTableSql);
+            string hasTableSql = "select count(*) from sysobjects where id = object_id('" + dbName + ".dbo.I_" + WorkFlowCode + "')";
+            int hasTableCount = DapperHelper.CreateInstance(dbConnectionKey).ExecuteScalar(hasTableSql);
             if (hasTableCount > 0)
             {
                 #region 再次发布
@@ -561,7 +584,7 @@ namespace DapperMvc.Controllers
                                 default:
                                     break;
                             }
-                            DapperHelper.CreateInstance(ConfigurationManager.AppSettings["SqlConnectionKey_BPMDB"]).ExecuteNoneQuery(addTableFieldSql.ToString());
+                            DapperHelper.CreateInstance(dbConnectionKey).ExecuteNoneQuery(addTableFieldSql.ToString());
                             #endregion
                         }
                         else
@@ -570,8 +593,8 @@ namespace DapperMvc.Controllers
 
                             string sonTableCode = item["FieldCode"].ToString();
 
-                            string hasSonTableSql = "select count(*) from sysobjects where id = object_id('" + ConfigurationManager.AppSettings["BpmDbName"] + ".dbo.C_" + sonTableCode + "')";
-                            int hasSonTableCount = DapperHelper.CreateInstance(ConfigurationManager.AppSettings["SqlConnectionKey_BPMDB"]).ExecuteScalar(hasSonTableSql);
+                            string hasSonTableSql = "select count(*) from sysobjects where id = object_id('" + dbName + ".dbo.C_" + sonTableCode + "')";
+                            int hasSonTableCount = DapperHelper.CreateInstance(dbConnectionKey).ExecuteScalar(hasSonTableSql);
 
                             if (hasSonTableCount > 0)
                             {
@@ -591,35 +614,35 @@ namespace DapperMvc.Controllers
                                         {
                                             case "ShortString":
                                             case "SingleParticipant":
-                                                addSonTableSql.Append(" nvarchar(255)");
+                                                addSonTableSql.Append(" nvarchar(255),");
                                                 break;
 
                                             case "String":
-                                                addSonTableSql.Append(" nvarchar(max)");
+                                                addSonTableSql.Append(" nvarchar(max),");
                                                 break;
 
                                             case "Bool":
-                                                addSonTableSql.Append(" bit");
+                                                addSonTableSql.Append(" bit,");
                                                 break;
 
                                             case "Int":
-                                                addSonTableSql.Append(" int");
+                                                addSonTableSql.Append(" int,");
                                                 break;
 
                                             case "Long":
-                                                addSonTableSql.Append(" bigint");
+                                                addSonTableSql.Append(" bigint,");
                                                 break;
 
                                             case "Double":
-                                                addSonTableSql.Append(" float");
+                                                addSonTableSql.Append(" float,");
                                                 break;
 
                                             case "DateTime":
-                                                addSonTableSql.Append(" datetime");
+                                                addSonTableSql.Append(" datetime,");
                                                 break;
 
                                             case "Attachment":
-                                                addSonTableSql.Append(" nvarchar(max)");
+                                                addSonTableSql.Append(" nvarchar(max),");
                                                 break;
 
                                             default:
@@ -629,7 +652,8 @@ namespace DapperMvc.Controllers
                                     }
 
                                 }
-                                DapperHelper.CreateInstance(ConfigurationManager.AppSettings["SqlConnectionKey_BPMDB"]).ExecuteNoneQuery(addSonTableSql.ToString());
+
+                                DapperHelper.CreateInstance(dbConnectionKey).ExecuteNoneQuery((addSonTableSql.ToString()).Substring(0, addSonTableSql.Length - 1));
                             }
                             else
                             {
@@ -684,7 +708,7 @@ namespace DapperMvc.Controllers
 
                                 }
                                 createSonTableSql.Append("PRIMARY KEY (ID))");
-                                DapperHelper.CreateInstance(ConfigurationManager.AppSettings["SqlConnectionKey_BPMDB"]).ExecuteNoneQuery(createSonTableSql.ToString());
+                                DapperHelper.CreateInstance(dbConnectionKey).ExecuteNoneQuery(createSonTableSql.ToString());
 
                             }
 
@@ -855,9 +879,11 @@ namespace DapperMvc.Controllers
                 publishModel.DisplayName = "数据模型";
                 publishModel.CreatedTime = DateTime.Now;
                 publishModel.ModifiedTime = DateTime.Now;
-
+                model.IsShareTable = false;
+                model.ShareTableCode = WorkFlowCode;
                 model.Content = ObjectSchemaList.ToString();
                 model.ModifiedTime = DateTime.Now;
+                model.DbName = dbName;
 
 
                 //事务处理
@@ -871,11 +897,11 @@ namespace DapperMvc.Controllers
                     int updateCount = 0;
                     try
                     {
-                        updateCount += DapperHelper.CreateInstance(ConfigurationManager.AppSettings["SqlConnectionKey_BPMDB"]).ExecuteNoneQuery(CreateTableSql); //创建数据表
+                        updateCount += DapperHelper.CreateInstance(dbConnectionKey).ExecuteNoneQuery(CreateTableSql); //创建数据表
 
                         foreach (string item in createSonTableSqlDic)
                         {
-                            updateCount += DapperHelper.CreateInstance(ConfigurationManager.AppSettings["SqlConnectionKey_BPMDB"]).ExecuteNoneQuery(item); //创建子表数据表
+                            updateCount += DapperHelper.CreateInstance(dbConnectionKey).ExecuteNoneQuery(item); //创建子表数据表
                         }
 
                         //int insertCount = _bizObjectSchemaDraftService.Insert<OT_BizObjectSchemaDraft>(publishModel);//发布版本
@@ -1019,6 +1045,57 @@ namespace DapperMvc.Controllers
 
 
         /// <summary>
+        /// 更新节点顺序
+        /// </summary>
+        /// <param name="modelList"></param>
+        /// <returns></returns>
+        private List<Proc_Node> UpdateNodeSoft(List<Proc_Node> modelList)
+        {
+
+            Proc_Node maxBranchModel = modelList.FirstOrDefault(x => x.Branch == modelList.Max(y => y.Branch));
+
+            List<Proc_Node> sortedList = new List<Proc_Node>();
+
+            for (int i = 1; i <= maxBranchModel.Branch; i++)
+            {
+
+                int thisBranch = modelList.Min(y => y.Branch);
+
+                List<Proc_Node> branchList = modelList.Where(c => c.Branch == thisBranch).ToList();
+
+                modelList.RemoveAll(c => c.Branch == thisBranch);
+
+                for (int j = 1; j <= 6; j++)
+                {
+                    List<Proc_Node> columnList = branchList.Where(c => c.Column == j && c.Branch == thisBranch).ToList();
+
+                    if (columnList.Count > 0)
+                    {
+                        int k = 1;
+                        columnList = columnList.OrderBy(c => c.Row).ToList();
+                        foreach (var item in columnList)
+                        {
+                            if (i != thisBranch || k != item.Row)
+                            {
+                                item.State = 2;
+                            }
+                            item.Branch = i;
+                            item.Row = k;
+                            item.Id = item.Branch + "_" + item.Column + "_" + item.Row;
+                            k++;
+
+                            sortedList.Add(item);
+                        }
+
+                    }
+                }
+
+            }
+
+            return sortedList;
+        }
+
+        /// <summary>
         /// 流程节点增删改操作
         /// </summary>
         /// <param name="modelList"></param>
@@ -1029,95 +1106,195 @@ namespace DapperMvc.Controllers
 
             int EditCount = 0;
 
-            bool publishApproveStepFlag = false;
-
-            foreach (var item in modelList)
+            using (IDbConnection dbConnection = new SqlConnection(ConfigurationManager.AppSettings["SqlConnectionKey"]))
             {
-
-                item.ProcessName = HttpUtility.UrlDecode(item.ProcessName);
-                item.OldRow = item.Row;
-
-                if (item.State == (int)NodeState.更新)
+                dbConnection.Open();
+                IDbTransaction transaction = dbConnection.BeginTransaction();
+                try
                 {
 
+                    //如果是发布先将循序调整好
                     if (EditType == "发布")
                     {
-                        item.State = (int)NodeState.正常;
-
-                        if (item.IsDelete)
-                        {
-                            Dictionary<string, object> deleteparam = new Dictionary<string, object>();
-                            deleteparam.Add("ObjectId", item.ObjectId);
-                            EditCount += _procNode.DeleteSigerData<Proc_Node>(deleteparam);
-                        }
-                        else
-                        {
-                            item.IsNewAdd = false;
-                            item.IsRoleChange = false;
-                            item.IsSortChange = false;
-                            Dictionary<string, object> param = new Dictionary<string, object>();
-                            param.Add("ObjectId", item.ObjectId);
-                            //修改
-                            EditCount += _procNode.UpdateTable<Proc_Node>(item, param);
-                        }
-
+                        modelList = UpdateNodeSoft(modelList);
                     }
 
-                    if (item.IsNewAdd)
+                    foreach (var item in modelList)
                     {
-                        //新增
 
-                        var hasList = _procNode.SelectData<Proc_Node>("select * from Proc_Node where ObjectId='" + item.ObjectId + "'");
-                        if (hasList.Count == 0)
+                        item.ProcessName = HttpUtility.UrlDecode(item.ProcessName);
+                        item.OldRow = item.Row;
+
+                        if (item.State == (int)NodeState.更新)
                         {
-                            EditCount += _procNode.Insert<Proc_Node>(item);
+
+                            if (EditType == "发布")
+                            {
+
+                                item.State = (int)NodeState.正常;
+
+                                if (item.IsDelete)
+                                {
+                                    Dictionary<string, object> deleteparam = new Dictionary<string, object>();
+                                    deleteparam.Add("ObjectId", item.ObjectId);
+                                    EditCount += _procNode.DeleteSigerData<Proc_Node>(deleteparam);
+                                }
+                                else
+                                {
+                                    item.IsNewAdd = false;
+                                    item.IsRoleChange = false;
+                                    item.IsSortChange = false;
+                                    Dictionary<string, object> param = new Dictionary<string, object>();
+                                    param.Add("ObjectId", item.ObjectId);
+                                    //修改
+                                    EditCount += _procNode.UpdateTable<Proc_Node>(item, param);
+                                }
+
+                            }
+                            else
+                            {
+
+                                if (item.IsRoleChange || item.IsSortChange || item.IsDelete)
+                                {
+
+
+                                    Dictionary<string, object> param = new Dictionary<string, object>();
+                                    param.Add("ObjectId", item.ObjectId);
+                                    //修改
+                                    EditCount += _procNode.UpdateTable<Proc_Node>(item, param);
+
+
+                                }
+
+                                if (item.IsNewAdd)
+                                {
+                                    if (item.IsDelete && item.IsNewAdd)
+                                    {
+                                        Dictionary<string, object> deleteparam = new Dictionary<string, object>();
+                                        deleteparam.Add("ObjectId", item.ObjectId);
+                                        EditCount += _procNode.DeleteSigerData<Proc_Node>(deleteparam);
+                                    }
+                                    else
+                                    {
+                                        //新增
+                                        var hasList = _procNode.SelectData<Proc_Node>("select * from Proc_Node where ObjectId='" + item.ObjectId + "'");
+                                        if (hasList.Count == 0)
+                                        {
+                                            EditCount += _procNode.Insert<Proc_Node>(item);
+                                        }
+                                    }
+
+
+                                }
+
+
+
+                            }
+
+
+
+                        }
+
+                        //更新版本
+                        if (EditType == "发布")
+                        {
+                            if (!string.IsNullOrEmpty(Version))
+                            {
+
+                                item.Version = (Convert.ToSingle(Version) + 0.1).ToString("#0.0");
+                                Dictionary<string, object> param = new Dictionary<string, object>();
+                                param.Add("ObjectId", item.ObjectId);
+                                //修改
+                                EditCount += _procNode.UpdateTable<Proc_Node>(item, param);
+
+                            }
                         }
 
                     }
 
-                    if (item.IsRoleChange || item.IsSortChange || item.IsDelete)
+                    //发布新的节点版本
+                    if (EditType == "发布")
                     {
-                        Dictionary<string, object> param = new Dictionary<string, object>();
-                        param.Add("ObjectId", item.ObjectId);
-                        //修改
-                        EditCount += _procNode.UpdateTable<Proc_Node>(item, param);
+
+                        bool releaseNode = ReleaseProcNode(modelList);
+                        _logger.Info("发布版本："+releaseNode);
+                        _logger.Info("流程名称："+modelList[0].ProcessName);
+                        _logger.Info("流程名称："+modelList[0].ProcessCode);
+
                     }
+
+
+
+                    if (EditCount > 0)
+                    {
+                        result.States = true;
+                        result.Message = "成功.";
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        result.States = false;
+                        result.Message = "失败.";
+                        transaction.Rollback();
+                    }
+
+
 
                 }
-
-                //更新版本
-                if (EditType == "发布")
+                catch (Exception exception)
                 {
-                    if (!string.IsNullOrEmpty(Version))
-                    {
 
-                        item.Version = (Convert.ToSingle(Version) + 0.1).ToString("#0.0");
-                        Dictionary<string, object> param = new Dictionary<string, object>();
-                        param.Add("ObjectId", item.ObjectId);
-                        //修改
-                        EditCount += _procNode.UpdateTable<Proc_Node>(item, param);
+                    transaction.Rollback();
 
-                    }
                 }
 
             }
-
-
-
-            if (EditCount > 0)
-            {
-                result.States = true;
-                result.Message = "成功.";
-
-            }
-            else
-            {
-                result.States = false;
-                result.Message = "失败.";
-
-            }
-
             return AjaxJson(result);
+
+        }
+
+        private bool ReleaseProcNode(List<Proc_Node> souceData)
+        {
+            bool flag = false;
+
+            List<Proc_Node_Release> list = _procNode_Release.SelectData<Proc_Node_Release>("select * from Proc_Node_Release where ProcessCode='" + souceData[0].ProcessCode + "' and Version='" + souceData[0].Version + "'");
+            if (list.Count > 0)
+            {
+                Dictionary<string, object> deleteParamDic = new Dictionary<string, object>();
+                deleteParamDic.Add("ProcessCode", souceData[0].ProcessCode);
+                deleteParamDic.Add("Version", souceData[0].Version);
+                _procNode_Release.DeleteSigerData<Proc_Node_Release>(deleteParamDic);
+            }
+
+            List<Proc_Node_Release> modelList = new List<Proc_Node_Release>();
+
+            foreach (var item in souceData)
+            {
+                Proc_Node_Release model = new Proc_Node_Release();
+                model.ObjectId = item.ObjectId;
+                model.Id = item.Id;
+                model.Content = item.Content;
+                model.Type = item.Type;
+                model.Branch = item.Branch;
+                model.Column = item.Column;
+                model.Row = item.Row;
+                model.OldRow = item.OldRow;
+                model.ProcessName = item.ProcessName;
+                model.ProcessCode = item.ProcessCode;
+                model.State = item.State;
+                model.IsNewAdd = item.IsNewAdd;
+                model.IsDelete = item.IsDelete;
+                model.IsRoleChange = item.IsRoleChange;
+                model.IsSortChange = item.IsSortChange;
+                model.Version = item.Version;
+                modelList.Add(model);
+            }
+            int count = _procNode_Release.InsertBatch<Proc_Node_Release>(modelList);
+            if (count > 0)
+            {
+                flag = true;
+            }
+            return flag;
         }
 
         /// <summary>
@@ -1330,7 +1507,16 @@ namespace DapperMvc.Controllers
                 OT_WorkflowTemplate model = new OT_WorkflowTemplate();
                 model.ObjectID = ObjectID;
                 model.ParentObjectID = ProcessParentId;
+
+                //验证编码是否存在
+                List<OT_WorkflowTemplate> hasThisCode = _workflowTemplateService.SelectData<OT_WorkflowTemplate>("select * from OT_WorkflowTemplate where WorkflowCode='" + ProcessCode + "' and IsDelete!='1'");
+                if (hasThisCode.Count > 0)
+                {
+                    result.Message = "流程编码重复.";
+                    return AjaxJson(result);
+                }
                 model.WorkflowCode = ProcessCode;
+
                 model.ProcessName = ProcessName;
                 model.ParentPropertyName = ParentPropertyName;
                 model.Creator = CookieHelper.GetCookie("systemUserName", "");

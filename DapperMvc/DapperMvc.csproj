@@ -1368,6 +1368,7 @@
     <Content Include="Contents\underscore.js" />
     <Content Include="Contents\WebPageCss\layout.css" />
     <Content Include="Contents\WebPageCss\reset.css" />
+    <Content Include="Css\commonIcon.css" />
     <Content Include="Css\font-awesome.min.css" />
     <Content Include="Css\fontawesome-webfont.svg" />
     <Content Include="Css\ionicons.min.css" />
@@ -2461,6 +2462,7 @@
     <Content Include="Views\SystemManager\SystemRoleView.cshtml" />
     <Content Include="Views\SystemManager\AuthorityConfig.cshtml" />
     <Content Include="Views\Error\NoAuthority.cshtml" />
+    <Content Include="Views\SystemManager\ValidPage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_GlobalResources\Resource.resx">

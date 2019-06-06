@@ -154,6 +154,8 @@ namespace Domain
         public bool IsShareTable { get; set; }
         public string ShareTableCode { get; set; }
 
+        public string DbName { get; set; }
+
         #endregion Model
     }
 }

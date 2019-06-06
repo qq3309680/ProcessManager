@@ -202,7 +202,8 @@
 
                 $(".AddFile").css("display", "block");
                 $(".AddProcess").css("display", "none");
-
+                
+                
             });
 
             //添加分类-tab页按钮切换
@@ -219,7 +220,7 @@
                 var model = new Object();
                 model.ObjecrId = "";
                 model.ProcessType = $("#ProcessType").val();
-                if (model.ProcessType=="") {
+                if (model.ProcessType == "") {
                     alert("请填写分类名称！！！");
                 } else {
                     $.AJAXGetData("Post", "/Process/EditProc_Type", model, function (data) {
@@ -232,7 +233,7 @@
                         }
                     });
                 }
-                
+
             });
 
             //添加流程或文件夹
@@ -250,12 +251,20 @@
                 model.ObjectID = $.GetGUID();
                 model.ProcessName = $("#ProcessName").val();
                 model.ProcessCode = $("#ProcessCode").val();
+                var myReg = /[~!#$@@%^&*()/\|,.<>?"'();:+-=\[\]{}]/;
+                if (myReg.test(model.ProcessCode)) {
+                    alert("流程编码不允许含有特殊符号");
+                    return false;
+                }
+                var spaceReg = new RegExp(" ", "g");
+                model.ProcessCode = model.ProcessCode.replace(spaceReg, "");//替换所有空格
                 model.ProcessParentId = $(this).attr("data-ProcessParentId");
-                if (model.ProcessCode!=""&&model.ProcessName!="") {
+                if (model.ProcessCode != "" && model.ProcessName != "") {
                     $.AJAXGetData("Post", "/Process/EditWorkflowTemplate", model, function (data) {
                         console.dir(data);
                         if (data.States) {
                             addTreeItem(processTree, model);
+                            alert(data.Message);
                             $('#addProcessModal').modal('hide');
                             window.location.href = "/Process/ProceduralModel";
                         }
@@ -265,7 +274,7 @@
                     alert("请填写对应流程编码及名称！！！");
                 }
 
-             
+
             });
 
             //添加文件夹
@@ -274,7 +283,7 @@
 
                 model.ProcessType = $("#ProcessTypeName").val();
                 model.ParentObjectId = $(this).attr("data-ProcessParentId");
-                if (model.ProcessType!="") {
+                if (model.ProcessType != "") {
                     $.AJAXGetData("Post", "/Process/EditProc_Type", model, function (data) {
                         console.dir(data);
                         if (data.States) {
@@ -286,7 +295,7 @@
                 } else {
                     alert("请填写对应流程分类！！！");
                 }
-              
+
 
             });
 
@@ -301,7 +310,8 @@
                         if (data.States) {
                             //数据编辑成功
 
-                            alert("成功");
+                            alert(data.Message);
+
                             window.location.reload();
                         } else {
                             window.location.reload();

@@ -186,6 +186,8 @@ namespace CommonTool.Workflow
         public static AjaxReturnData DeleteTableField(string MainTableCode, string ObjectId, bool IsSonTable, string ParentProperty, JArray FieldJArray, OT_BizObjectSchema Model, IOT_BizObjectSchemaService Service)
         {
 
+            string dbConnectionKey = string.Format("Data Source = {0}; Initial Catalog = {1}; User Id = {2}; Password = {3} ", ConfigurationManager.AppSettings["DataSource"], string.IsNullOrEmpty(Model.DbName) ? "ProcDB" : Model.DbName, ConfigurationManager.AppSettings["UserId"], ConfigurationManager.AppSettings["Password"]);
+
             AjaxReturnData result = new AjaxReturnData();
 
             result.States = true;
@@ -206,15 +208,20 @@ namespace CommonTool.Workflow
                                     {
                                         #region 删除数据表
                                         string deleteTableFieldSql = "drop table C_" + item["FieldCode"];
-                                        DapperHelper.CreateInstance(ConfigurationManager.AppSettings["SqlConnectionKey_BPMDB"]).ExecuteNoneQuery(deleteTableFieldSql);
+                                        DapperHelper.CreateInstance(dbConnectionKey).ExecuteNoneQuery(deleteTableFieldSql);
                                         #endregion
                                         FieldJArray.Remove(item);
                                     }
                                     else
                                     {
                                         #region 删除数据表字段
-                                        string deleteTableFieldSql = "alter table C_" + item["FieldCode"] + " drop column " + childItem["FieldCode"].ToString();
-                                        DapperHelper.CreateInstance(ConfigurationManager.AppSettings["SqlConnectionKey_BPMDB"]).ExecuteNoneQuery(deleteTableFieldSql);
+                                        int hasField = DapperHelper.CreateInstance(dbConnectionKey).ExecuteScalar("select   COUNT(*)   from   syscolumns   where   id=object_id('C_" + MainTableCode + "')   and   name='" + item["FieldCode"].ToString() + "' ");
+                                        if (hasField > 0)
+                                        {
+                                            string deleteTableFieldSql = "alter table C_" + item["FieldCode"] + " drop column  [" + childItem["FieldCode"].ToString() + "]";
+                                            DapperHelper.CreateInstance(dbConnectionKey).ExecuteNoneQuery(deleteTableFieldSql);
+                                        }
+
                                         #endregion
                                     }
                                 }
@@ -242,14 +249,21 @@ namespace CommonTool.Workflow
                                 //子表
                                 #region 删除数据表
                                 string deleteTableFieldSql = "drop table C_" + item["FieldCode"];
-                                DapperHelper.CreateInstance(ConfigurationManager.AppSettings["SqlConnectionKey_BPMDB"]).ExecuteNoneQuery(deleteTableFieldSql);
+                                DapperHelper.CreateInstance(dbConnectionKey).ExecuteNoneQuery(deleteTableFieldSql);
                                 #endregion
                             }
                             else
                             {
+
+
                                 #region 删除数据表字段
-                                string deleteTableFieldSql = "alter table I_" + MainTableCode + " drop column " + item["FieldCode"].ToString();
-                                DapperHelper.CreateInstance(ConfigurationManager.AppSettings["SqlConnectionKey_BPMDB"]).ExecuteNoneQuery(deleteTableFieldSql);
+                                int hasField = DapperHelper.CreateInstance(dbConnectionKey).ExecuteScalar("select   COUNT(*)   from   syscolumns   where   id=object_id('I_" + MainTableCode + "')   and   name='" + item["FieldCode"].ToString() + "' ");
+                                if (hasField > 0)
+                                {
+                                    string deleteTableFieldSql = "alter table I_" + MainTableCode + " drop column  [" + item["FieldCode"].ToString() + "]";
+                                    DapperHelper.CreateInstance(dbConnectionKey).ExecuteNoneQuery(deleteTableFieldSql);
+                                }
+
                                 #endregion
                             }
                         }

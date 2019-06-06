@@ -168,6 +168,7 @@ CDrag.Table.Rows.prototype = {
     },
 
     load: function (datajson) {
+
         //加载信息--database数据信息
 
         var wc = this;
@@ -176,6 +177,8 @@ CDrag.Table.Rows.prototype = {
         var info = database.parse(wc.root_id, datajson);
 
         wc.title.innerHTML = info.branch + "_" + info.column + "_" + info.row;
+
+        wc.title.setAttribute("objectId", info.objectid);
 
         wc.nodeInfo = info;
 
@@ -226,6 +229,7 @@ CDrag.prototype = {
 
         child.id = id;
         child.className = "root row";
+        child.setAttribute("branch", parseInt(id.replace("root", "")) + 1);
         __("node-content").appendChild(child);
         //初始化成员
         var wc = this;
@@ -429,7 +433,7 @@ CDrag.prototype = {
         o.closeFunc = o.reduceFunc = o.mousedown = null;
 
         var row = o.element.getAttribute("row");
-        console.dir(o);
+
         for (var i = 0; i < o.parent.items.length; i++) {
 
             if (row == o.parent.items.length) {
@@ -455,9 +459,15 @@ CDrag.prototype = {
         }
 
         var node_id = $(o.element).find(".title_a").html();
+        if (o.nodeInfo.isnewadd) {
+            //删除对应数据
+            database.updateDatabase(o.element, row, "删除");
+        } else {
+            //打上删除标记
+            database.updateDatabase(o.element, row, "删除标记");
+        }
 
-        //删除对应数据
-        database.updateDatabase(o.element, row, "删除");
+
 
         parent.element.removeChild(o.element);
 
@@ -513,14 +523,185 @@ CDrag.prototype = {
         calcTableHeaderWidth();
         columnAlign();
     },
+    //上移按钮
+    upColumnSort: function (o) {
+
+        var branch = parseInt(o.getAttribute("branch"));
+
+        var upElement = document.getElementById("root" + parseInt(branch - 1));
+
+        var downElement = document.getElementById("root" + parseInt(branch - 2));
+
+        if (downElement != null) {
+
+
+            $(".root").remove();
+
+            $.each(database.json, function (key, val) {
+                if (val.branch == branch) {
+                    val.branch = branch - 1;
+                    val.issortchange = true;
+                    val.state = 2;
+                }
+                else if (val.branch == branch - 1) {
+                    val.branch = branch;
+                    val.issortchange = true;
+                    val.state = 2;
+                }
+                val.id = val.branch + "_" + val.column + "_" + val.row;
+
+            });
+
+            var upGo = function (fieldData, index) {
+
+                if (index != 0) {
+
+                    fieldData[index] = fieldData.splice(index - 1, 1, fieldData[index])[0];
+
+                } else {
+
+                    fieldData.push(fieldData.shift());
+
+                }
+
+            }
+
+            $.each(database.colsJson, function (key, val) {
+
+                var colsBranch = val[0].cols.split('_')[0];
+
+                if (colsBranch == branch) {
+                    $.each(val, function (colKey, colVal) {
+                        colVal.cols = (branch - 1) + "_" + colVal.cols.split('_')[1];
+                        $.each(colVal.rows, function (rowKey, rowVal) {
+                            rowVal.id = (branch - 1) + "_" + rowVal.id.split('_')[1] + "_" + rowVal.id.split('_')[2]
+                        });
+                    });
+                }
+                else if (colsBranch == branch - 1) {
+                    $.each(val, function (colKey, colVal) {
+                        colVal.cols = branch + "_" + colVal.cols.split('_')[1];
+                        $.each(colVal.rows, function (rowKey, rowVal) {
+                            rowVal.id = branch + "_" + rowVal.id.split('_')[1] + "_" + rowVal.id.split('_')[2]
+                        });
+                    });
+
+                }
+
+
+            });
+
+            upGo(database.colsJson, branch - 1);
+
+            $.each(database.colsJson, function (key, val) {
+
+
+                var wc = new CDrag("root" + key);
+
+                wc.parse(val, "root" + key);
+
+            });
+
+        }
+
+
+
+    },
+    //下移按钮
+    downColumnSort: function (o) {
+
+        var branch = parseInt(o.getAttribute("branch"));
+
+        var upElement = document.getElementById("root" + parseInt(branch));
+
+        var downElement = document.getElementById("root" + parseInt(branch - 1));
+
+
+        if (upElement != null) {
+
+            $(".root").remove();
+
+            $.each(database.json, function (key, val) {
+                if (val.branch == branch) {
+                    val.branch = branch + 1;
+                    val.state = 2;
+                    val.issortchange = true;
+                }
+                else if (val.branch == branch + 1) {
+                    val.branch = branch;
+                    val.state = 2;
+                    val.issortchange = true;
+                }
+          
+                val.id = val.branch + "_" + val.column + "_" + val.row;
+
+            });
+
+            var downGo = function (fieldData, index) {
+
+                if (index != fieldData.length - 1) {
+
+                    fieldData[index] = fieldData.splice(index + 1, 1, fieldData[index])[0];
+
+                } else {
+
+                    fieldData.unshift(fieldData.splice(index, 1)[0]);
+
+                }
+
+            }
+
+
+            $.each(database.colsJson, function (key, val) {
+
+                var colsBranch = val[0].cols.split('_')[0];
+
+                if (colsBranch == branch) {
+                    $.each(val, function (colKey, colVal) {
+                        colVal.cols = (branch + 1) + "_" + colVal.cols.split('_')[1];
+                        $.each(colVal.rows, function (rowKey, rowVal) {
+                            rowVal.id = (branch + 1) + "_" + rowVal.id.split('_')[1] + "_" + rowVal.id.split('_')[2]
+                        });
+                    });
+                }
+                else if (colsBranch == branch + 1) {
+                    $.each(val, function (colKey, colVal) {
+                        colVal.cols = branch + "_" + colVal.cols.split('_')[1];
+                        $.each(colVal.rows, function (rowKey, rowVal) {
+                            rowVal.id = branch + "_" + rowVal.id.split('_')[1] + "_" + rowVal.id.split('_')[2]
+                        });
+                    });
+
+                }
+
+
+            });
+
+            downGo(database.colsJson, branch - 1);
+
+            $.each(database.colsJson, function (key, val) {
+
+                var wc = new CDrag("root" + key);
+
+                wc.parse(val, "root" + key);
+
+            });
+
+        }
+
+    },
+
     parse: function (o, rootid) {
+
 
         //初始化成员
         try {
+
             var wc = this, table = wc.table, cols, rows, div, i, j;
 
             //创建列div
             for (i = 0 ; i < o.length ; i++) {
+
                 var child = document.createElement("div");
                 child.id = o[i].cols;
                 child.className = "cell";
@@ -534,6 +715,35 @@ CDrag.prototype = {
 
                 //绑定“加号”事件
                 Object.addEvent(addchild, ["onclick"], wc.addnodeevent.bind(wc, addchild));
+
+                if (i == 0) {
+                    //添加排序按钮
+                    var sortBtn = document.createElement("div");
+                    sortBtn.id = o[i].cols.split('_')[0] + "_0";
+                    sortBtn.className = "sortCell";
+                    __(child.id).appendChild(sortBtn);
+                    var upBtn = document.createElement("div");
+                    upBtn.id = "up_" + o[i].cols.split('_')[0] + "_0";
+                    upBtn.className = "iconfont icontop-s upBtn";
+                    upBtn.setAttribute("title", "上移");
+                    upBtn.setAttribute("branch", o[i].cols.split('_')[0]);
+
+                    var downBtn = document.createElement("div");
+                    downBtn.id = "down_" + o[i].cols.split('_')[0] + "_0";
+                    downBtn.className = "iconfont iconbelow-s downBtn";
+                    downBtn.setAttribute("title", "下移");
+                    downBtn.setAttribute("branch", o[i].cols.split('_')[0]);
+
+                    __(sortBtn.id).appendChild(upBtn);
+                    __(sortBtn.id).appendChild(downBtn);
+
+
+                    //绑定“排序按钮”事件
+                    Object.addEvent(upBtn, ["onclick"], wc.upColumnSort.bind(wc, upBtn));
+                    Object.addEvent(downBtn, ["onclick"], wc.downColumnSort.bind(wc, downBtn));
+
+
+                }
 
                 if (i < o.length - 1) {
                     var childnbsp = document.createElement("div");
@@ -573,6 +783,7 @@ calcTableHeaderWidth = function () {
     var headerDiv = document.getElementsByClassName("root-title-cell");
 
     var cols = document.getElementsByClassName("cell");
+
 
     for (var i = 0; i < headerDiv.length; i++) {
 
@@ -717,9 +928,10 @@ addBranch.prototype = {
              { id: maxBranch + "_6_1", objectid: _.find(databaseJson, function (val) { return val.id == maxBranch + "_6_1" }).objectid }
             ]
         }];
+        database.colsJson.push(json);
 
-        console.dir(json);
         var wc = new CDrag("root" + parseInt(this.maxBranch() - 1));
+
         wc.parse(json, "root" + parseInt(this.maxBranch() - 2));
 
 
@@ -729,16 +941,14 @@ addBranch.prototype = {
 }
 
 
-Object.addEvent(window, ["onload"], function () {
 
+Object.addEvent(window, ["onload"], function () {
 
     database.json = JSON.parse($("#nodeList").val());
 
-    var colsJson = JSON.parse($("#nodeData").val());
+    database.colsJson = JSON.parse($("#nodeData").val());
 
-    
-
-    $.each(colsJson, function (key, val) {
+    $.each(database.colsJson, function (key, val) {
 
 
         var wc = new CDrag("root" + key);
@@ -748,6 +958,7 @@ Object.addEvent(window, ["onload"], function () {
     });
 
     var AddBranch = new addBranch();
+
     Object.addEvent(document.getElementById("addBranch"), ["click"], AddBranch.add.bind(AddBranch));
 
 
@@ -757,6 +968,8 @@ Object.addEvent(window, ["onload"], function () {
 var database = {
 
     json: $("#nodeList").val(),
+
+    colsJson: $("#nodeData").val(),
 
     parse: function (id, jsondata) {
         //昂应该用AJAX查找然后返回数据..我这里就拿..json串模拟好了嘿
@@ -783,19 +996,23 @@ var database = {
 
                 val.state = 2;
 
-                switch (type) {
+                if (type == "删除") {
 
-                    case "删除":
+                    val.isnewadd = true;
+                    val.isdelete = true;
 
-                        val.isnewadd = false;
-                        val.isdelete = true;
+                } else {
+                    switch (type) {
 
-                        break;
-                    case "顺序变更":
+                        case "删除标记":
+                            val.isnewadd = false;
+                            val.isdelete = true;
+                            break;
+                        case "顺序变更":
+                            val.issortchange = true;
+                            break;
 
-                        val.issortchange = true;
-
-                        break;
+                    }
 
 
                 }
@@ -816,12 +1033,13 @@ var database = {
         });
 
     },
+
     updateRoleName: function (o, roleName) {
 
 
         $.each(database.json, function (key, val) {
 
-            if (val.id == $(o).find(".title_a").html()) {
+            if (val.objectid == $(o).find(".title_a").attr("objectid")) {
 
                 database.json = _.without(database.json, val);
 

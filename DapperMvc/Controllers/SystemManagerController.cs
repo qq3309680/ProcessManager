@@ -453,5 +453,15 @@ namespace DapperMvc.Controllers
             return View(list);
 
         }
+
+        /// <summary>
+        /// 外部验证页面
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ValidPage()
+        {
+            return View();
+        }
+
     }
 }

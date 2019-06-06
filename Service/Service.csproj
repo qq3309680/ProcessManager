@@ -48,6 +48,7 @@
     <Compile Include="OT_WorkflowTemplateService.cs" />
     <Compile Include="ProcessTableModelService.cs" />
     <Compile Include="Proc_NodeService.cs" />
+    <Compile Include="Proc_Node_ReleaseService.cs" />
     <Compile Include="Proc_TypeService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoleRelationshipService.cs" />

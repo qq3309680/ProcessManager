@@ -184,7 +184,7 @@
     function onContextMenu(ele, ev) {
         var position = GetMouse(event);
         $("#RightMouseDiv").css("display", "block");
-        $(".RightMouseOtherDiv").height(document.body.clientHeight + "px");
+        $(".RightMouseOtherDiv").height($(".container").height() + "px");
         $(".RightMouseClick").css("position", "absolute").css("left", position.x + "px").css("top", position.y + "px");
         activeElement = $(ele);
         ev.preventDefault();
@@ -193,7 +193,7 @@
     function onChildContextMenu(ele, ev) {
         var position = GetMouse(event);
         $("#ChildRightMouseDiv").css("display", "block");
-        $(".RightMouseOtherDiv").height(document.body.clientHeight + "px");
+        $(".RightMouseOtherDiv").height($(".container").height() + "px");
         $(".ChildRightMouseClick").css("position", "absolute").css("left", position.x + "px").css("top", position.y + "px");
         activeElement = $(ele);
         ev.preventDefault();
@@ -210,13 +210,46 @@
         $(activeElement).remove();
         CloseMenu();
     }
-    //删除该行
-    function deleteRow() {
-        $(activeElement).parent().remove();
+    //插入列
+    function insertColumn(type) {
+        var newColumnName = "请填写字段名称";
+        var newColumnContent = "请填写字段要求";
+        var tableHeader = '<th class="fixdInfo"  oncontextmenu="onChildContextMenu(this,event)" fieldAttr="add" style="border:1px dashed #B6ACAC"><input class="field-input" type="text" name="name" value="' + newColumnName + '" /><span class="field-span" style="width:120px">' + newColumnName + '</span></th>';
+        var tableBody = '<td class="fixdInfo"  oncontextmenu="onChildContextMenu(this,event)" fieldAttr="add" style="border:1px dashed #B6ACAC"><input class="field-input" type="text" name="name" value="' + newColumnContent + '" /><span class="field-span" style="width:120px">' + newColumnContent + '</span></td>';
+        console.dir(activeElement[0].tagName);
+        if (activeElement[0].tagName == "TH") {
+            if (type == "left") {
+                $(activeElement).before(tableHeader);
+            } else {
+                $(activeElement).after(tableHeader);
+
+            }
+
+        } else {
+            if (type == "left") {
+                $(activeElement).before(tableBody);
+            } else {
+                $(activeElement).after(tableBody);
+
+            }
+        }
+
         CloseMenu();
     }
 
-    function addRow() {
+    //删除该行
+    function deleteRow() {
+        $(activeElement).parent().remove();
+        $("#main-form").ChangeRowSort(parseInt($(activeElement).parent().attr("rows")) + 1, -1);
+        CloseMenu();
+    }
+
+    function insertRow(type) {
+        addRow(type, $(activeElement).parent().attr("rows"));
+        CloseMenu();
+    }
+
+    function addRow(type, targetRow) {
         $.ligerDialog.open({
             height: 266,
             width: 500,
@@ -231,10 +264,9 @@
             isResize: true,
             slide: false,
             data: {
-                name: "123"
+                type: type,
+                targetRow: targetRow
             },
-            //自定义参数
-            myDataName: "456",
             //弹出框关闭前事件
             onClose: function () {
                 // console.dir($("#" + $("#AddRowConfig").find("iframe").attr("id")));
@@ -254,9 +286,18 @@
                     if (isNaN(currRows) || currRows == undefined) {
                         currRows = 0;
                     }
+                    var type = dialog.get('data').type;
 
-                    $("#main-form").AddRow(currRows, column, colWidthArr);
-                    //console.dir(dialog);
+                    if (type == "last") {
+                        $("#main-form").AddRow(type, currRows + 1, column, colWidthArr);
+                    } else {
+                        var targetRow = dialog.get('data').targetRow;
+                        if (type == "up") {
+                            $("#main-form").AddRow(type, targetRow, column, colWidthArr);
+                        } else {
+                            $("#main-form").AddRow(type, parseInt(targetRow) + 1, column, colWidthArr);
+                        }
+                    }
                     dialog.close();
                 }
             }, {
@@ -321,8 +362,8 @@
 
         var newColumnName = "请填写字段名称";
         var newColumnContent = "请填写字段要求";
-        var tableHeader = '<th class="fixdInfo" fieldAttr="add" style="border:1px dashed #B6ACAC"><input class="field-input" type="text" name="name" value="' + newColumnName + '" /><span class="field-span" style="width:120px">' + newColumnName + '</span></th>';
-        var tableBody = '<td class="fixdInfo" fieldAttr="add" style="border:1px dashed #B6ACAC"><input class="field-input" type="text" name="name" value="' + newColumnContent + '" /><span class="field-span" style="width:120px">' + newColumnContent + '</span></td>';
+        var tableHeader = '<th class="fixdInfo"  oncontextmenu="onChildContextMenu(this,event)" fieldAttr="add" style="border:1px dashed #B6ACAC"><input class="field-input" type="text" name="name" value="' + newColumnName + '" /><span class="field-span" style="width:120px">' + newColumnName + '</span></th>';
+        var tableBody = '<td class="fixdInfo"  oncontextmenu="onChildContextMenu(this,event)" fieldAttr="add" style="border:1px dashed #B6ACAC"><input class="field-input" type="text" name="name" value="' + newColumnContent + '" /><span class="field-span" style="width:120px">' + newColumnContent + '</span></td>';
         $(element).parent().parent().find(".table-header").append(tableHeader);
         $(element).parent().parent().find(".table-body").append(tableBody);
 
@@ -582,7 +623,7 @@
         if ($("#MainFormData").val() != "") {
             tableModel.MainFormData = JSON.parse($("#MainFormData").val());
         }
-        if ($("#ChildFormData").val()!="") {
+        if ($("#ChildFormData").val() != "") {
             tableModel.ChildFormData = JSON.parse($("#ChildFormData").val());
         }
 
@@ -661,7 +702,6 @@
 
         });
 
-
         //权限管控编辑按钮
         $(document).on("click", "#AutorityControlEdit", function () {
             $("#AutorityControlBtn").css("display", "block");
@@ -682,7 +722,6 @@
 
         });
 
-
         //添加子表
         $(document).on("click", "#add-child-form", function () {
             addChildForm();
@@ -690,7 +729,7 @@
 
         //增加一行
         $(document).on("click", "#add-row", function () {
-            addRow();
+            addRow("last");
         });
 
         //增加一列
@@ -866,7 +905,7 @@
                         if (thContent == "") {
                             thContent = "请填写字段名称";
                         }
-                        insertHtml += '<th class="fixdInfo  ' + isAdd + ' ' + isChange + '"';
+                        insertHtml += '<th   class="fixdInfo  ' + isAdd + ' ' + isChange + '"';
                         if (ChildFormData[i]["ThArray"][j]["isChange"] == true) {
                             insertHtml += ' style="border:2px dashed #ffd800" ';
                         }
@@ -1187,6 +1226,12 @@
 
     </div>
     <div class="RightMouseClick" style="float:left;z-index:101;width:120px;opacity:1;padding:5px;border-radius:3px;">
+        <div class="row RightMoustBtn" style=" text-align:center;height:24px;" onclick="insertRow('up')">
+            <span style="display:block;width:100%;height:100%;line-height:24px;font-size:18px;background:#e0e0e0;text-decoration:none;">在上方插入行</span>
+        </div>
+        <div class="row RightMoustBtn" style=" text-align:center;height:24px;" onclick="insertRow('down')">
+            <span style="display:block;width:100%;height:100%;line-height:24px;font-size:18px;background:#e0e0e0;text-decoration:none;">在下方插入行</span>
+        </div>
         <div class="row RightMoustBtn" style=" text-align:center;height:24px;" onclick="deleteRow()">
             <span style="display:block;width:100%;height:100%;line-height:24px;font-size:18px;background:#e0e0e0;text-decoration:none;">删除该行</span>
         </div>
@@ -1202,6 +1247,12 @@
 
     </div>
     <div class="ChildRightMouseClick" style="float:left;z-index:101;width:120px;opacity:1;padding:5px;border-radius:3px;">
+        <div class="row RightMoustBtn" style=" text-align:center;height:24px;" onclick="insertColumn('left')">
+            <span style="display:block;width:100%;height:100%;line-height:24px;font-size:18px;background:#e0e0e0;text-decoration:none;">在左方插入列</span>
+        </div>
+        <div class="row RightMoustBtn" style=" text-align:center;height:24px;" onclick="insertColumn('right')">
+            <span style="display:block;width:100%;height:100%;line-height:24px;font-size:18px;background:#e0e0e0;text-decoration:none;">在右方插入列</span>
+        </div>
         <div class="row RightMoustBtn" style=" text-align:center;height:24px;" onclick="deleteCell()">
             <span style="display:block;width:100%;height:100%;line-height:24px;font-size:18px;background:#e0e0e0;text-decoration:none;">删除该单元格</span>
         </div>

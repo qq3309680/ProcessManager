@@ -65,7 +65,7 @@ body {
     border-radius: 50%;
     line-height: 17px;
 }
-
+ 
 
     .addnode:hover {
         background-color: #c7c1c1;
@@ -75,7 +75,7 @@ body {
 
 .move {
     border: #CCCCCC 1px solid;
-    /*width: 100px;*/
+    max-width: 240px;
     height: auto;
     float: left;
     margin: 3px;

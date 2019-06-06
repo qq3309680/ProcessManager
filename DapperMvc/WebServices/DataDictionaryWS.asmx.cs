@@ -90,11 +90,11 @@ namespace DapperMvc.WebServices
 
             if (string.IsNullOrEmpty(processName.Trim()))
             {
-                sql = "select * from OT_WorkflowTemplate";
+                sql = "select * from OT_WorkflowTemplate where IsDelete!='1'";
             }
             else
             {
-                sql = "select * from OT_WorkflowTemplate where ProcessName like '%" + processName + "%'";
+                sql = "select * from OT_WorkflowTemplate where ProcessName like '%" + processName + "%' and IsDelete!='1'";
             }
 
             List<OT_WorkflowTemplate> list = DapperHelper.CreateInstance().SimpleQuery<OT_WorkflowTemplate>(sql);

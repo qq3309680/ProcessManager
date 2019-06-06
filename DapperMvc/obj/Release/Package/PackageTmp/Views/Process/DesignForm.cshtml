@@ -26,10 +26,18 @@
         display: inline-block;
         text-align: center;
         line-height: 28px;
-        background-color: #fff;
         color: #B6ACAC;
         word-wrap: break-word;
     }
+
+    .InfoName {
+        background-color: #f7f7f7;
+    }
+
+    .InfoValue {
+        background-color: #fff;
+    }
+
 
     .field-span:hover {
         /*border: 2px dashed #00F !important;*/
@@ -63,6 +71,14 @@
     .table-bordered {
         border: 0;
     }
+
+    th {
+        background-color: #f7f7f7;
+    }
+
+        th > span {
+            background-color: #f7f7f7;
+        }
 
     .isChange {
         border: 2px dashed #ffd800;
@@ -563,9 +579,12 @@
         //$.Add();
 
 
-
-        tableModel.MainFormData = JSON.parse($("#MainFormData").val());
-        tableModel.ChildFormData = JSON.parse($("#ChildFormData").val());
+        if ($("#MainFormData").val() != "") {
+            tableModel.MainFormData = JSON.parse($("#MainFormData").val());
+        }
+        if ($("#ChildFormData").val()!="") {
+            tableModel.ChildFormData = JSON.parse($("#ChildFormData").val());
+        }
 
         console.dir(tableModel);
 
@@ -577,6 +596,11 @@
         //保存数据
         $(document).on("click", "#save-form-data", function () {
             saveFormData("保存");
+        });
+
+        //不保存数据
+        $(document).on("click", "#dont-save", function () {
+            window.location.reload();
         });
 
         //发布数据
@@ -801,10 +825,16 @@
 
                         var isAdd = MainFormData[i]["RowArray"][j]["isAdd"] == true ? "isAdd" : "";
                         var isChange = MainFormData[i]["RowArray"][j]["isChange"] == true ? "isChange" : "";
-
-                        appendHtml += '<div id="div_' + currRows + '_' + parseInt(j + 1) + '" ondragover="allowDrop(event)"   ondrop="drop(event)"  colWidth="' + ColWidth + '"  class="col-md-' + ColWidth + ' fixdInfo field-div  ' + isAdd + ' ' + isChange + '"    oncontextmenu="onContextMenu(this,event)">';
+                        var spanClass = "InfoName";
+                        if (j % 2 > 0) {
+                            spanClass = "InfoValue";
+                        }
+                        appendHtml += '<div id="div_' + currRows + '_' + parseInt(j + 1) + '" ondragover="allowDrop(event)"   ondrop="drop(event)"  colWidth="' + ColWidth + '"  class="col-md-' + ColWidth + ' fixdInfo field-div  ' + isAdd + ' ' + isChange + ' ' + spanClass + '"    oncontextmenu="onContextMenu(this,event)">';
                         appendHtml += '<input id="input_' + currRows + '_' + parseInt(j + 1) + '" class="field-input" type="text"  value="' + Content + '"  />';
-                        appendHtml += '<span class="field-span" id="span_' + currRows + '_' + parseInt(j + 1) + '"  ondragenter="dragEnter(event)"   ondragend="dragEnd(event)" ondragleave="dragLeave(event)" ondragstart="dragBegin(event)"  draggable="true" >' + Content + '</span>';
+
+
+
+                        appendHtml += '<span class="field-span ' + spanClass + '" id="span_' + currRows + '_' + parseInt(j + 1) + '"  ondragenter="dragEnter(event)"   ondragend="dragEnd(event)" ondragleave="dragLeave(event)" ondragstart="dragBegin(event)"  draggable="true" >' + Content + '</span>';
                         appendHtml += '</div>';
                     }
                     appendHtml += "</div>";
@@ -1044,6 +1074,7 @@
                 <a class="btn btn-default" id="autority-control">权限管控</a>
             </form>
             <form class="navbar-form navbar-right">
+                <a class="btn btn-default" id="dont-save">不保存</a>
                 @if (CommonTool.AuthorityHelper.GetButtonAuthority((int)DapperMvc.Enum.AuthorityType.编辑, string.Format("/{0}/{1}", Request.RequestContext.RouteData.Values["controller"] + string.Empty, Request.RequestContext.RouteData.Values["action"] + string.Empty), "save"))
                 {
                     <a class="btn btn-default" id="save-form-data">保存</a>
@@ -1091,8 +1122,8 @@
                 <span>基本信息</span>
             </div>
             <div class="row" style="min-height: 33px;">
-                <div id="div4" class="col-md-2 fixdInfo field-div">
-                    <span>标题</span>
+                <div id="div4" class="col-md-2 fixdInfo field-div InfoName">
+                    <span class="InfoName">标题</span>
                 </div>
                 <div id="div5" class="col-md-10 fixdInfo field-div">
                     <input class="field-input" type="text" name="name" id="Title" value="@Model.Title" />
@@ -1108,28 +1139,28 @@
                 </div>
             </div>
             <div class="row" style="min-height: 33px;">
-                <div id="div6" class="col-md-2 fixdInfo field-div">
-                    <span>申请人</span>
+                <div id="div6" class="col-md-2 fixdInfo field-div InfoName">
+                    <span class="InfoName">申请人</span>
                 </div>
                 <div id="div7" class="col-md-4 fixdInfo field-div">
                     <span>自动带出</span>
                 </div>
-                <div id="div6" class="col-md-2 fixdInfo field-div">
-                    <span>申请日期</span>
+                <div id="div6" class="col-md-2 fixdInfo field-div InfoName">
+                    <span class="InfoName">申请日期</span>
                 </div>
                 <div id="div7" class="col-md-4 fixdInfo field-div">
                     <span>自动带出</span>
                 </div>
             </div>
             <div class="row" style="min-height: 33px;">
-                <div id="div6" class="col-md-2 fixdInfo field-div ">
-                    <span>申请公司</span>
+                <div id="div6" class="col-md-2 fixdInfo field-div InfoName">
+                    <span class="InfoName">申请公司</span>
                 </div>
                 <div id="div7" class="col-md-4 fixdInfo field-div">
                     <span>自动带出</span>
                 </div>
-                <div id="div6" class="col-md-2 fixdInfo field-div">
-                    <span>申请部门</span>
+                <div id="div6" class="col-md-2 fixdInfo field-div InfoName">
+                    <span class="InfoName">申请部门</span>
                 </div>
                 <div id="div7" class="col-md-4 fixdInfo field-div">
                     <span>自动带出</span>
