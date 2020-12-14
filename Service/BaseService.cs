@@ -12,7 +12,6 @@ namespace Service
     /// <summary>
     /// Author : 谭振
     /// DateTime : 2017/3/24 16:51:07
-    /// Mail : tanz01@haid.com.cn
     /// Description : 
     /// </summary>
     public class BaseService : IBaseService
